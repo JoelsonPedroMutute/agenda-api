@@ -3,7 +3,10 @@
 use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\AppointmentController;
+use App\Http\Controllers\Api\V1\AppointmentController;
+
+
+
 
 
 Route::prefix('auth')->group(function(){
