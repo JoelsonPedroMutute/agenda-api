@@ -40,12 +40,13 @@ class AuthController extends Controller
             'token' => $token,
         ], 201);
     }
+    
     // Login
     public function login(Request $request)
     {
         $request->validate([
             'email'    => 'required|email',
-            'password' => 'required',
+            'password' => 'required|min:6',
         ]);
 
         $user = User::where('email', $request->email)->first();
