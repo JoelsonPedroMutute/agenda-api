@@ -2,30 +2,32 @@
 
 namespace App\Models;
 
+use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
 class Appointment extends Model
 {
-    public function scopeFilter($query, $filters)
-{
-    return (new \App\Filters\AppointmentFilter($filters))->apply($query);
-}
     use HasFactory;
 
-  protected $fillable = [
-    'user_id',
-    'title',
-    'description',
-    'date',
-    'start_time',
-    'end_time',
-    'status', 
-];
+    protected $fillable = [
+        'user_id',
+        'title',
+        'description',
+        'date',
+        'start_time',
+        'end_time',
+        'status',
+    ];
 
-      public function user()
+    public function user()
     {
         return $this->belongsTo(User::class);
     }
 
+    // Filtro usando QueryFilter com Request
+   public function scopeFilter($query, $filter)
+{
+    return $filter->apply($query);
+}
 }

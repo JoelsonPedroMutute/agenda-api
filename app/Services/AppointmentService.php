@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\Appointment;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class AppointmentService
 {
@@ -30,11 +31,18 @@ class AppointmentService
     /**
      * Retorna um compromisso específico do usuário.
      */
-    public function find(int $userId, int $id): Appointment
-    {
-        return Appointment::where('user_id', $userId)->findOrFail($id);
+   public function find(int $userId, int $id): Appointment
+{
+    $appointment = Appointment::where('user_id', $userId)
+                              ->where('id', $id)
+                              ->first();
+
+    if (!$appointment) {
+        throw new ModelNotFoundException("Este compromisso não pertence ao usuário autenticado.");
     }
 
+    return $appointment;
+}
     /**
      * Atualiza um compromisso.
      */

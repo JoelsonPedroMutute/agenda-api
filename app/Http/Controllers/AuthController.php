@@ -3,24 +3,19 @@
 namespace App\Http\Controllers;
 
 use App\Models\User;
-use Illuminate\Validation\ValidationException;
+use App\Http\Requests\RegisterUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\ValidationException;
 use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
-    public function register(Request $request)
+    /**
+     * Registrar novo usuário
+     */
+    public function register(RegisterUserRequest $request)
     {
-        $request->validate([
-            'name'     => 'required|string|max:255',
-            'email'    => 'required|string|email|unique:users,email',
-            'password' => 'required|string|confirmed|min:6',
-        ], [
-            'email.unique' => 'O e-mail informado já está cadastrado.',
-        ]);
-
-
         $user = User::create([
             'name'     => $request->name,
             'email'    => $request->email,
@@ -35,13 +30,15 @@ class AuthController extends Controller
         ])->plainTextToken;
 
         return response()->json([
-            'message' => 'Login feito com sucesso.',
-            'user'  => $user,
-            'token' => $token,
+            'message' => 'Usuário registrado com sucesso.',
+            'user'    => $user,
+            'token'   => $token,
         ], 201);
     }
-    
-    // Login
+
+    /**
+     * Fazer login
+     */
     public function login(Request $request)
     {
         $request->validate([
@@ -60,31 +57,26 @@ class AuthController extends Controller
         $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
-            'message' => 'Usuário registrado com sucesso.',
-            'user'  => $user,
-            'token' => $token,
+            'message' => 'Login feito com sucesso.',
+            'user'    => $user,
+            'token'   => $token,
         ]);
     }
 
+    /**
+     * Fazer logout
+     */
+    public function logout(Request $request)
+    {
+        $accessToken = $request->bearerToken();
+        $token = PersonalAccessToken::findToken($accessToken);
 
-public function logout(Request $request)
-{
-    // Pega o token Bearer do cabeçalho da requisição
-    $accessToken = $request->bearerToken();
+        if (! $token) {
+            return response()->json(['message' => 'Token inválido ou não autenticado'], 401);
+        }
 
-    // Verifica se o token é válido
-    $token = PersonalAccessToken::findToken($accessToken);
+        $token->delete();
 
-    if (!$token) {
-        return response()->json(['message' => 'Token inválido ou não autenticado'], 401);
+        return response()->json(['message' => 'Logout realizado com sucesso']);
     }
-
-    // Deleta o token (logout efetivo)
-    $token->delete();
-
-    return response()->json(['message' => 'Logout realizado com sucesso']);
-}
-
-
-
 }

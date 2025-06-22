@@ -24,16 +24,33 @@ class AppointmentController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index(Request $request, AppointmentFilter $filter)
-    {
-        $appointments = $this->service->getAll(Auth::id(), $filter, $request->per_page ?? 10);
+ public function index(Request $request, AppointmentFilter $filter)
+{
+    $appointments = $this->service->getAll(Auth::id(), $filter, $request->per_page ?? 10);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Lista de compromissos recuperada com sucesso.',
-            'data' => AppointmentResource::collection($appointments),
-        ]);
-    }
+    return response()->json([
+        'success' => true,
+        'message' => 'Lista de compromissos recuperada com sucesso.',
+        'data' => [
+            'items' => AppointmentResource::collection($appointments)->response()->getData(true)['data'],
+            'pagination' => [
+                'current_page' => $appointments->currentPage(),
+                'per_page' => $appointments->perPage(),
+                'total' => $appointments->total(),
+                'from' => $appointments->firstItem(),
+                'to' => $appointments->lastItem(),
+                'last_page' => $appointments->lastPage(),
+                'links' => [
+                    'first' => $appointments->url(1),
+                    'last' => $appointments->url($appointments->lastPage()),
+                    'prev' => $appointments->previousPageUrl(),
+                    'next' => $appointments->nextPageUrl()
+                ]
+            ]
+        ]
+    ]);
+}
+
 
     /**
      * Store a newly created resource in storage.
