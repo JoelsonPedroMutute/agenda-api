@@ -4,6 +4,7 @@ use App\Http\Controllers\AuthController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\Api\V1\AppointmentController;
+use App\Http\Controllers\Api\V1\ReminderController;
 use App\Http\Controllers\Api\V1\UserController;
 
 // Rotas para o Login, Logout e Cadastro de um usuário
@@ -30,5 +31,6 @@ Route::put('user/password', [UserController::class, 'changePassword']);
 // Rotas para os reminders e appointments com todos os verbos http
 Route::middleware(['auth:sanctum'])->group(function () {
     Route::apiResource('appointments', AppointmentController::class);
+    Route::apiResource('reminders', ReminderController::class);
     
 });

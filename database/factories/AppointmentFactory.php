@@ -2,6 +2,8 @@
 
 namespace Database\Factories;
 
+use App\Models\User;
+
 use Illuminate\Database\Eloquent\Factories\Factory;
 
 /**
@@ -17,7 +19,13 @@ class AppointmentFactory extends Factory
     public function definition(): array
     {
         return [
-            //
+    'user_id' => User::factory(), // Cria o usuário associado
+    'title' => fake()->sentence(5),
+    'description' => fake()->text(200),
+    'date' => fake()->date(),
+    'start_time' => fake()->time('H:i'),
+    'end_time' => fake()->time('H:i'),
+    'status' => fake()->randomElement(['ativo', 'cancelado', 'concluido']), // Adiciona status aleatório
         ];
     }
 }

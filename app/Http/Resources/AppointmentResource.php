@@ -20,8 +20,6 @@ class AppointmentResource extends JsonResource
             'title'        => $this->title,
             'description'  => $this->description,
             'date'         => $this->date,
-            'start_time'   => $this->start_time,
-            'end_time'     => $this->end_time,
             'status'       => $this->status,
             'user'         => [
                 'id'    => $this->user->id,
