@@ -15,8 +15,10 @@ class AppointmentService
     public function getAll(int $userId, $filter, int $perPage = 10): LengthAwarePaginator
     {
         return Appointment::where('user_id', $userId)
-            ->filter($filter)
-            ->paginate($perPage);
+    ->with('reminders') // carrega os reminders junto
+    ->filter($filter)
+    ->paginate($perPage);
+
     }
 
     /**

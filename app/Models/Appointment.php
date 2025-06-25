@@ -25,9 +25,9 @@ class Appointment extends Model
         return $this->belongsTo(User::class);
     }
 
-      public function reminders()
+   public function reminders()
 {
-    return $this->hasMany(Reminder::class);
+    return $this->hasMany(Reminder::class)->latest('remind_at')->limit(2);
 }
 
 

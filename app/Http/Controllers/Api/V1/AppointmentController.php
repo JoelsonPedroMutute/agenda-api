@@ -31,8 +31,9 @@ class AppointmentController extends Controller
     return response()->json([
         'success' => true,
         'message' => 'Lista de compromissos recuperada com sucesso.',
-        'data' => [
-            'items' => AppointmentResource::collection($appointments)->response()->getData(true)['data'],
+       'data' => [
+    'appointments' => AppointmentResource::collection($appointments)->response()->getData(true)['data'],
+
             'pagination' => [
                 'current_page' => $appointments->currentPage(),
                 'per_page' => $appointments->perPage(),

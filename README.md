@@ -1,9 +1,9 @@
 # AGENDA-API
 
-# Descrição: 
+## Descrição: 
     A Agenda API é uma aplicação backend que permite a criação, leitura, atualização e exclusão de agendament(Appointments) e lembretes (Reminders), utilizando a arquitetura RESTful, com autenticação via Laravel Sanctum.
 
-# Funcionalidades
+### Funcionalidades
 
 Agendamentos (Appointments)
     Criação de agendamentos com título, descrição, status, data, hora de início e fim.
@@ -20,7 +20,7 @@ Lembretes (Reminders)
 Filtros
     Filtros para busca de agendamentos e lembretes por diferentes parâmetros (data, status, método de notificação).
 
-# Tecnologias
+### Tecnologias
     PHP 8.x
 
     Laravel 12.x
@@ -31,7 +31,7 @@ Filtros
 
     Postman para testes da API
 
-# Pré-requisitos
+### Pré-requisitos
     Antes de rodar a aplicação, verifique se você tem os seguintes pré-requisitos instalados:
 
     PHP (versão 8.3 ou superior).
@@ -43,39 +43,38 @@ Filtros
     .env configurado com as credenciais do banco de dados.
 
 
-# Como Rodar o Projeto Localmente
+### Como Rodar o Projeto Localmente
     Clone o repositório:
 
  git clone https://github.com/JoelsonPedroMutute/agenda-api.git
 cd agenda-api 
 
-# Instale as dependências:
+###  Instale as dependências:
     composer install
 
-# Configure seu banco de dados no arquivo .env.
+### Configure seu banco de dados no arquivo .env.
     php artisan key:generate
 
-# Inicie o servidor:
+###  Inicie o servidor:
     php artisan serve
     A API estará disponível em http://127.0.0.1:8000
 
+###  Comandos para Migrations, Seeders, Factories e Resources
+    Rodar Migrations:
+            php artisan migrate
+### Se quiser resetar as tabelas e rodar novamente, use:
+    php artisan migrate:fresh
 
-# Comandos para Migrations, Seeders, Factories e Resources
-
-php artisan migrate
-# Se quiser resetar as tabelas e rodar novamente, use:
-php artisan migrate
-
-# Rodar Seeders
+### Rodar Seeders
 php artisan db:seed
 
-# Se você quiser rodar um seeder específico, por exemplo, o seeder de User
+### Se você quiser rodar um seeder específico, por exemplo, o seeder de User
 php artisan db:seed --class=UserSeeder
 
-# Criar Resources para User, Appointment e Reminder
+### Criar Resources para User, Appointment e Reminder
 php artisan make:resource UserResource
 php artisan make:resource AppointmentResource
 php artisan make:resource ReminderResource
 
-# Contribuindo
+### Contribuindo
 Se você quiser contribuir para o projeto, sinta-se à vontade para criar uma pull request com suas alterações.

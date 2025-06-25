@@ -19,7 +19,7 @@ class ReminderFactory extends Factory
     {
         return [
     'appointment_id' => Appointment::factory(), // Cria o agendamento associado
-    'remind_at' => fake()->dateTime(),
+    'remind_at' => fake()->dateTimeBetween('now', '+1 week'),
     'method' => fake()->randomElement(['email', 'message', 'notification']),
         ];
     }

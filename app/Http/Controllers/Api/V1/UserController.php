@@ -5,16 +5,18 @@ namespace App\Http\Controllers\Api\V1;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\UpdateUserRequest;
 use App\Http\Requests\ChangePasswordRequest;
+use App\Http\Resources\UserResource;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 
 class UserController extends Controller
 {
    
-    public function show(Request $request)
-    {
-        return response()->json($request->user());
-    }
+   public function show(Request $request)
+{
+    $user = $request->user()->load('appointments.reminders');
+    return new UserResource($user);
+}
 
     /**
      * Update the specified resource in storage.

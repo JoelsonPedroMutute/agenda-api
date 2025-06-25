@@ -21,11 +21,7 @@ class AppointmentResource extends JsonResource
             'description'  => $this->description,
             'date'         => $this->date,
             'status'       => $this->status,
-            'user'         => [
-                'id'    => $this->user->id,
-                'name'  => $this->user->name,
-                'email' => $this->user->email,]
-
+          'reminders' =>  ReminderResource::collection($this->whenLoaded('reminders')),
 
 ];
 
