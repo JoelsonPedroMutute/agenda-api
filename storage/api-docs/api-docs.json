@@ -206,6 +206,321 @@
                     }
                 ]
             }
+        },
+        "/api/v1/reminders": {
+            "get": {
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Listar todos os lembretes do usuário autenticado",
+                "operationId": "ac26ac2ad062912d8d4f74dd2cd64704",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "description": "Quantidade de lembretes por página",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 10
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de lembretes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ReminderResource"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Criar um novo lembrete",
+                "operationId": "1b0c7dc52c3c59b0d7d16abb5baf2688",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreReminderRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "201": {
+                        "description": "Lembrete criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReminderResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/reminders/{id}": {
+            "get": {
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Visualizar um lembrete específico",
+                "operationId": "95740e8f1b35d8d18a93555f0466aada",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do lembrete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Detalhes do lembrete",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReminderResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Atualizar um lembrete existente",
+                "operationId": "bec0a9feb2b9a7c09c74177876e1a7f0",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do lembrete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/StoreReminderRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Lembrete atualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/ReminderResource"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Reminders"
+                ],
+                "summary": "Remover um lembrete",
+                "operationId": "cd450624baff8123ac5085947e880d49",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "ID do lembrete",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Lembrete excluído com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user": {
+            "get": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Detalhes do usuário autenticado",
+                "description": "Retorna os dados do usuário logado, incluindo agendamentos e lembretes.",
+                "operationId": "8d11e10a249849c3fd83d513350c8211",
+                "responses": {
+                    "200": {
+                        "description": "Dados do usuário",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Atualizar dados do usuário",
+                "description": "Atualiza nome, email ou outras informações permitidas do usuário autenticado.",
+                "operationId": "e6547b0afe34b1feeb750fa95ac7c1c9",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/UpdateUserRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Usuário atualizado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Dados atualizados com cusesso."
+                                        },
+                                        "user": {
+                                            "$ref": "#/components/schemas/User"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/change-password": {
+            "post": {
+                "tags": [
+                    "User"
+                ],
+                "summary": "Alterar senha do usuário",
+                "description": "Permite que o usuário autenticado altere sua senha.",
+                "operationId": "c1b5dfdec9be85b37ee229ab91c76e62",
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "$ref": "#/components/schemas/ChangePasswordRequest"
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Senha alterada com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Senha alterada com sucesso."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "422": {
+                        "description": "Senha atual incorreta",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Senha atual incorreta."
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "sanctum": []
+                    }
+                ]
+            }
         }
     },
     "components": {
@@ -330,10 +645,193 @@
                     }
                 },
                 "type": "object"
+            },
+            "ChangePasswordRequest": {
+                "required": [
+                    "current_password",
+                    "new_password"
+                ],
+                "properties": {
+                    "current_password": {
+                        "type": "string",
+                        "example": "senha_antiga123"
+                    },
+                    "new_password": {
+                        "type": "string",
+                        "example": "novaSenhaSegura456"
+                    }
+                },
+                "type": "object"
+            },
+            "ReminderResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "appointment_id": {
+                        "type": "integer",
+                        "example": 3
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Tomar medicamento"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Tomar remédio para dor"
+                    },
+                    "reminder_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-07-01T16:00:00Z"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-25T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-25T10:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "StoreReminderRequest": {
+                "required": [
+                    "title",
+                    "description",
+                    "reminder_time"
+                ],
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Tomar medicamento"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Tomar remédio para dor às 16h"
+                    },
+                    "reminder_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-07-01T16:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateReminderRequest": {
+                "properties": {
+                    "title": {
+                        "type": "string",
+                        "example": "Tomar vitamina"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Vitamina C às 17h"
+                    },
+                    "reminder_time": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-07-01T17:00:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "UpdateUserRequest": {
+                "properties": {
+                    "name": {
+                        "type": "string",
+                        "example": "Joelson Mutute"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "joelson@example.com"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResource": {
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Joelson Mutute"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "joelson@example.com"
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-20T15:45:00Z"
+                    }
+                },
+                "type": "object"
+            },
+            "User": {
+                "required": [
+                    "id",
+                    "name",
+                    "email"
+                ],
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Joelson Mutute"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "joelson@example.com"
+                    },
+                    "email_verified_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-01T12:00:00Z",
+                        "nullable": true
+                    },
+                    "created_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-20T10:00:00Z"
+                    },
+                    "updated_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-06-22T15:30:00Z"
+                    }
+                },
+                "type": "object"
             }
         }
     },
     "tags": [
+        {
+            "name": "Reminders",
+            "description": "Operações relacionadas a lembretes"
+        },
+        {
+            "name": "User",
+            "description": "Operações relacionadas ao usuário autenticado"
+        },
         {
             "name": "Appointments",
             "description": "Appointments"
