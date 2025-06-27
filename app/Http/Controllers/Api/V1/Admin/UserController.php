@@ -12,7 +12,23 @@ use Illuminate\Validation\Rules\Password;
 class UserController extends Controller
 {
     /**
-     * Listar todos os usuários com seus agendamentos e lembretes.
+     * @OA\Get(
+     *     path="/api/v1/admin/users",
+     *     summary="Listar todos os usuários (admin)",
+     *     tags={"Admin - Users"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Response(
+     *         response=200,
+     *         description="Lista de usuários",
+     *         @OA\JsonContent(
+     *             @OA\Property(
+     *                 property="data",
+     *                 type="array",
+     *                 @OA\Items(ref="#/components/schemas/UserAdmin")
+     *             )
+     *         )
+     *     )
+     * )
      */
     public function index()
     {
@@ -22,7 +38,27 @@ class UserController extends Controller
     }
 
     /**
-     * Criar um novo usuário.
+     * @OA\Post(
+     *     path="/api/v1/admin/users",
+     *     summary="Criar novo usuário (admin)",
+     *     tags={"Admin - Users"},
+     *     security={{"sanctum":{}}},
+     *     @OA\RequestBody(
+     *         required=true,
+     *         @OA\JsonContent(
+     *             required={"name", "email", "password"},
+     *             @OA\Property(property="name", type="string", example="Joelson Admin"),
+     *             @OA\Property(property="email", type="string", format="email", example="admin.joelson@example.com"),
+     *             @OA\Property(property="password", type="string", format="password", example="senha123"),
+     *             @OA\Property(property="role", type="string", enum={"user", "admin"}, example="admin")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=201,
+     *         description="Usuário criado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/UserAdmin")
+     *     )
+     * )
      */
     public function store(Request $request)
     {
@@ -40,11 +76,32 @@ class UserController extends Controller
             'role' => $validated['role'] ?? 'user',
         ]);
 
-        return new UserResource($user);
+        return response()->json([
+    'message' => 'Usuário criado com sucesso.',
+    'user' => $user
+], 201);
+
     }
 
     /**
-     * Exibir um usuário específico com seus relacionamentos.
+     * @OA\Get(
+     *     path="/api/v1/admin/users/{id}",
+     *     summary="Ver usuário específico (admin)",
+     *     tags={"Admin - Users"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID do usuário",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuário encontrado",
+     *         @OA\JsonContent(ref="#/components/schemas/UserAdmin")
+     *     )
+     * )
      */
     public function show(User $user)
     {
@@ -52,7 +109,31 @@ class UserController extends Controller
     }
 
     /**
-     * Atualizar os dados de um usuário.
+     * @OA\Put(
+     *     path="/api/v1/admin/users/{id}",
+     *     summary="Atualizar dados do usuário (admin)",
+     *     tags={"Admin - Users"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID do usuário",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\RequestBody(
+     *         @OA\JsonContent(
+     *             @OA\Property(property="name", type="string", example="Joelson Atualizado"),
+     *             @OA\Property(property="email", type="string", format="email", example="novo.email@example.com"),
+     *             @OA\Property(property="role", type="string", enum={"user", "admin"}, example="admin")
+     *         )
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuário atualizado com sucesso",
+     *         @OA\JsonContent(ref="#/components/schemas/UserAdmin")
+     *     )
+     * )
      */
     public function update(Request $request, User $user)
     {
@@ -68,7 +149,26 @@ class UserController extends Controller
     }
 
     /**
-     * Deletar um usuário.
+     * @OA\Delete(
+     *     path="/api/v1/admin/users/{id}",
+     *     summary="Deletar usuário (admin)",
+     *     tags={"Admin - Users"},
+     *     security={{"sanctum":{}}},
+     *     @OA\Parameter(
+     *         name="id",
+     *         in="path",
+     *         required=true,
+     *         description="ID do usuário",
+     *         @OA\Schema(type="integer")
+     *     ),
+     *     @OA\Response(
+     *         response=200,
+     *         description="Usuário deletado com sucesso",
+     *         @OA\JsonContent(
+     *             @OA\Property(property="message", type="string", example="Usuário deletado com sucesso.")
+     *         )
+     *     )
+     * )
      */
     public function destroy(User $user)
     {
