@@ -11,26 +11,27 @@ class UserSeeder extends Seeder
 {
     public function run(): void
     {
-        // Usuário fixo para testes (email e senha conhecidos)
+        // Usuário fixo para testes
         $user = User::factory()->create([
             'name' => 'Joelson',
             'email' => 'joelson@example.com',
-            'password' => bcrypt('password'), // senha = password
+            'password' => bcrypt('password'),
+            'role' => 'user',
         ]);
 
-        // Cria 3 appointments para esse usuário
+        // 3 appointments para Joelson
         $appointments = Appointment::factory()->count(3)->create([
-            'user_id' => $user->id
+            'user_id' => $user->id,
         ]);
 
-        // Para cada appointment criado, cria 2 reminders
-        foreach ($appointments as $appointment) {
+        // 2 reminders por appointment
+        $appointments->each(function ($appointment) {
             Reminder::factory()->count(2)->create([
                 'appointment_id' => $appointment->id,
             ]);
-        }
+        });
 
-        // Cria mais 9 usuários genéricos
-        User::factory()->count(9)->create();
+        // 9 usuários genéricos (role = 'user' por padrão na factory)
+        User::factory(9)->create();
     }
 }

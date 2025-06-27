@@ -2,37 +2,32 @@
 
 namespace App\Models;
 
-use App\Http\Controllers\Api\V1\AppointmentController;
 use Laravel\Sanctum\HasApiTokens;
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use App\Models\Appointment;
-use App\Models\Reminder;
-
-
 
 class User extends Authenticatable 
 {
-    /** @use HasFactory<\Database\Factories\UserFactory> */
-    use  HasApiTokens, HasFactory, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable;
 
     /**
-     * The attributes that are mass assignable.
+     * Os atributos que podem ser atribuídos em massa.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $fillable = [
         'name',
         'email',
         'password',
+        'role',
     ];
 
     /**
-     * The attributes that should be hidden for serialization.
+     * Os atributos que devem ser ocultados na serialização.
      *
-     * @var list<string>
+     * @var array<int, string>
      */
     protected $hidden = [
         'password',
@@ -40,22 +35,30 @@ class User extends Authenticatable
     ];
 
     /**
-     * Get the attributes that should be cast.
+     * Os atributos que devem ser convertidos para tipos nativos.
      *
-     * @return array<string, string>
+     * @var array<string, string>
      */
-    protected function casts(): array
+    protected $casts = [
+        'email_verified_at' => 'datetime',
+        'password' => 'hashed',
+    ];
+
+    /**
+     * Verifica se o usuário é administrador.
+     *
+     * @return bool
+     */
+    public function isAdmin(): bool
     {
-        return [
-            'email_verified_at' => 'datetime',
-            'password' => 'hashed',
-        ];
+        return $this->role === 'admin';
     }
-     
+
+    /**
+     * Relacionamento: um usuário pode ter vários agendamentos.
+     */
     public function appointments()
     {
         return $this->hasMany(Appointment::class);
     }
-  
 }
-
