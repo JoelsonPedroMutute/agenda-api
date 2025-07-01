@@ -21,36 +21,19 @@ class AppointmentController extends Controller
         $this->service = $service;
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/appointments",
-     *     summary="Listar todos os compromissos paginados do usuário autenticado",
-     *     tags={"Appointments"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="per_page",
-     *         in="query",
-     *         description="Quantidade de resultados por página",
-     *         required=false,
-     *         @OA\Schema(type="integer", example=10)
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Lista de compromissos retornada com sucesso",
-     *         @OA\JsonContent(
-     *             @OA\Property(property="success", type="boolean", example=true),
-     *             @OA\Property(property="message", type="string", example="Lista de compromissos recuperada com sucesso."),
-     *             @OA\Property(property="data", type="object")
-     *         )
-     *     )
-     * )
-     */
     public function index(Request $request, AppointmentFilter $filter)
     {
-        $appointments = $this->service->getAll(Auth::id(), $filter, $request->per_page ?? 10);
+        $perPage = $request->per_page ?? 10;
+
+        if (Auth::user()->role === 'admin') {
+            $appointments = $this->service->getAllAsAdmin($filter, $perPage);
+        } else {
+            $appointments = $this->service->getAll(Auth::id(), $filter, $perPage);
+        }
 
         return response()->json([
             'success' => true,
+            'status' => 200,
             'message' => 'Lista de compromissos recuperada com sucesso.',
             'data' => [
                 'appointments' => AppointmentResource::collection($appointments)->response()->getData(true)['data'],
@@ -72,26 +55,16 @@ class AppointmentController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/v1/appointments",
-     *     summary="Criar um novo compromisso",
-     *     tags={"Appointments"},
-     *     security={{"sanctum":{}}},
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/StoreAppointmentRequest")
-     *     ),
-     *     @OA\Response(
-     *         response=201,
-     *         description="Compromisso criado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/AppointmentResource")
-     *     )
-     * )
-     */
     public function store(StoreAppointmentRequest $request)
     {
-        $appointment = $this->service->create(Auth::id(), $request->validated());
+        $user = Auth::user();
+        $data = $request->validated();
+
+        if ($user->role !== 'admin') {
+            $data['user_id'] = $user->id;
+        }
+
+        $appointment = $this->service->create(Auth::id(), $data);
 
         return response()->json([
             'success' => true,
@@ -100,26 +73,6 @@ class AppointmentController extends Controller
         ], 201);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/appointments/{id}",
-     *     summary="Exibir um compromisso específico",
-     *     tags={"Appointments"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID do compromisso",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Compromisso encontrado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/AppointmentResource")
-     *     )
-     * )
-     */
     public function show($id)
     {
         $appointment = $this->service->find(Auth::id(), $id);
@@ -131,30 +84,6 @@ class AppointmentController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/v1/appointments/{id}",
-     *     summary="Atualizar um compromisso",
-     *     tags={"Appointments"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID do compromisso",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\RequestBody(
-     *         required=true,
-     *         @OA\JsonContent(ref="#/components/schemas/UpdateAppointmentRequest")
-     *     ),
-     *     @OA\Response(
-     *         response=200,
-     *         description="Compromisso atualizado com sucesso",
-     *         @OA\JsonContent(ref="#/components/schemas/AppointmentResource")
-     *     )
-     * )
-     */
     public function update(UpdateAppointmentRequest $request, $id)
     {
         $appointment = $this->service->update(Auth::id(), $id, $request->validated());
@@ -166,25 +95,6 @@ class AppointmentController extends Controller
         ]);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/api/v1/appointments/{id}",
-     *     summary="Excluir um compromisso",
-     *     tags={"Appointments"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(
-     *         name="id",
-     *         in="path",
-     *         required=true,
-     *         description="ID do compromisso",
-     *         @OA\Schema(type="integer")
-     *     ),
-     *     @OA\Response(
-     *         response=204,
-     *         description="Compromisso excluído com sucesso"
-     *     )
-     * )
-     */
     public function destroy($id)
     {
         $this->service->delete(Auth::id(), $id);

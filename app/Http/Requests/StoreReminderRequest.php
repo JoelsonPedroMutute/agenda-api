@@ -24,7 +24,8 @@ class StoreReminderRequest extends FormRequest
         return [
             'appointment_id' => 'required|exists:appointments,id',
             'remind_at' => 'required|date|after_or_equal:now',
-           'method' => 'required|in:email,message,notification',
+           'method' => 'required|in:email,sms,notification'
+
 
 
         ];

@@ -19,16 +19,16 @@ class UpdateAppointmentRequest extends FormRequest
      *
      * @return array<string, \Illuminate\Contracts\Validation\ValidationRule|array<mixed>|string>
      */
-    public function rules(): array
-    {
-        return [
-            'title' => 'required|string|max:255',
-            'description' => 'nullable|string',
-            'date' => 'required|date',
-            'start_time' => 'required|date_format:H:i', // Ex: "14:30"
-            'end_time' => 'required|date_format:H:i,after:start_time',
-            'status' => ['nullable', 'in:ativo,cancelado,concluido'],
+   public function rules(): array
+{
+    return [
+        'title' => 'required|string|max:255',
+        'description' => 'nullable|string',
+        'date' => 'required|date',
+        'start_time' => 'required|date_format:H:i', 
+        'end_time' => 'required|date_format:H:i|after:start_time',
+        'status' => ['nullable', 'in:ativo,cancelado,concluído'], 
+    ];
+}
 
-        ];
-    }
 }

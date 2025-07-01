@@ -27,7 +27,7 @@ class RegisterUserRequest extends FormRequest
             'password' => 'required|string|min:8|confirmed',
         ];
     }
-     public function message(): array
+     public function messages(): array
      {
         return [
             'email.unique' => ' O email informado já está cadastrado.',

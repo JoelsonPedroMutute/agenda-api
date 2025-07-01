@@ -2,13 +2,15 @@
 
 namespace App\Models;
 
-use Illuminate\Http\Request;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
+use App\Filters\AppointmentFilter;
+use Reminder;
 
 class Appointment extends Model
 {
-    use HasFactory;
+    use HasFactory, SoftDeletes;
 
     protected $fillable = [
         'user_id',
@@ -20,20 +22,27 @@ class Appointment extends Model
         'status',
     ];
 
+    /**
+     * Relacionamento: um agendamento pertence a um usuário
+     */
     public function user()
     {
         return $this->belongsTo(User::class);
     }
 
-   public function reminders()
-{
-    return $this->hasMany(Reminder::class)->latest('remind_at')->limit(2);
-}
+    /**
+     * Relacionamento: um agendamento pode ter muitos lembretes
+     */
+    public function reminders()
+    {
+        return $this->hasMany(Reminder::class);
+    }
 
-
-    // Filtro usando QueryFilter com Request
-   public function scopeFilter($query, $filter)
-{
-    return $filter->apply($query);
-}
+    /**
+     * Escopo de filtro para AppointmentFilter
+     */
+    public function scopeFilter($query, $filters)
+    {
+        return (new AppointmentFilter($filters))->apply($query);
+    }
 }

@@ -12,16 +12,16 @@ class ReminderResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
+ public function toArray(Request $request): array
     {
         return [
             'id'             => $this->id,
             'appointment_id' => $this->appointment_id,
-            'remind_at'      => $this->remind_at,
+            'remind_at'      => $this->remind_at?->format('Y-m-d\TH:i:s'), // ISO 8601
             'method'         => $this->method,
-
-            // Se o relacionamento for carregado (usado pelos controllers admin)
-            'appointment' => new AppointmentResource($this->whenLoaded('appointment')),
+            
+            // Inclui o relacionamento, se estiver carregado
+            'appointment'    => new AppointmentResource($this->whenLoaded('appointment')),
         ];
     }
 }

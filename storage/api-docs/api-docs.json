@@ -7,8 +7,8 @@
     },
     "servers": [
         {
-            "url": "http://my-default-host.com",
-            "description": "Servidor principal"
+            "url": "http://agenda-api.test",
+            "description": "Servidor local de desenvolvimento"
         }
     ],
     "paths": {
@@ -1641,6 +1641,14 @@
                     }
                 },
                 "type": "object"
+            }
+        },
+        "securitySchemes": {
+            "sanctum": {
+                "type": "http",
+                "description": "Insira o token de autenticação Bearer aqui",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     },

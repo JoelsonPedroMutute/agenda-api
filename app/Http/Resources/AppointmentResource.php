@@ -12,19 +12,19 @@ class AppointmentResource extends JsonResource
      *
      * @return array<string, mixed>
      */
-    public function toArray(Request $request): array
-    {
-      return [
-
-            'id'           => $this->id,
-            'title'        => $this->title,
-            'description'  => $this->description,
-            'date'         => $this->date,
-            'status'       => $this->status,
-            'user'         => new UserResource($this->whenLoaded('user')),
-            'reminders' =>  ReminderResource::collection($this->whenLoaded('reminders')),
-
-];
-
+  public function toArray(Request $request): array
+{
+    return [
+        'id'           => $this->id,
+        'title'        => $this->title,
+        'description'  => $this->description,
+        'date'         => $this->date,
+        'start_time'   => $this->start_time,
+        'end_time'     => $this->end_time,
+        'status'       => $this->status,
+        'user'         => new UserResource($this->whenLoaded('user')),
+        'reminders'    => ReminderResource::collection($this->whenLoaded('reminders')),
+    ];
 }
+
 }

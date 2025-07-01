@@ -1,16 +1,15 @@
 <?php
 
-namespace App\Models;
-
-use Illuminate\Database\Eloquent\Model;
-use App\Filters\ReminderFilter;
+use App\Models\Appointment;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Reminder extends Model
 {
-  use HasFactory;
+    use HasFactory, SoftDeletes;
 
-   protected $fillable = [
+    protected $fillable = [
         'appointment_id',
         'remind_at',
         'method',
@@ -20,7 +19,8 @@ class Reminder extends Model
     {
         return $this->belongsTo(Appointment::class);
     }
-     public function scopeFilter($query, $filter)
+
+    public function scopeFilter($query, $filter)
     {
         return $filter->apply($query);
     }

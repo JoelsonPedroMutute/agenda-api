@@ -7,13 +7,9 @@ use App\Http\Requests\RegisterUserRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\ValidationException;
-use Laravel\Sanctum\PersonalAccessToken;
 
 class AuthController extends Controller
 {
-    /**
-     * Registrar novo usuário
-     */
     public function register(RegisterUserRequest $request)
     {
         $user = User::create([
@@ -22,12 +18,7 @@ class AuthController extends Controller
             'password' => Hash::make($request->password),
         ]);
 
-        $token = $user->createToken('auth_token', [
-            'post:read',
-            'post:create',
-            'post:update',
-            'post:delete',
-        ])->plainTextToken;
+        $token = $user->createToken('auth_token')->plainTextToken;
 
         return response()->json([
             'message' => 'Usuário registrado com sucesso.',
@@ -36,9 +27,6 @@ class AuthController extends Controller
         ], 201);
     }
 
-    /**
-     * Fazer login
-     */
     public function login(Request $request)
     {
         $request->validate([
@@ -63,19 +51,14 @@ class AuthController extends Controller
         ]);
     }
 
-    /**
-     * Fazer logout
-     */
     public function logout(Request $request)
     {
-        $accessToken = $request->bearerToken();
-        $token = PersonalAccessToken::findToken($accessToken);
-
-        if (! $token) {
-            return response()->json(['message' => 'Token inválido ou não autenticado'], 401);
+        $user = $request->user();
+        if (! $user) {
+            return response()->json(['message' => 'Usuário não autenticado'], 401);
         }
 
-        $token->delete();
+        $user->currentAccessToken()->delete();
 
         return response()->json(['message' => 'Logout realizado com sucesso']);
     }
