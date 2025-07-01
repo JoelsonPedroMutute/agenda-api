@@ -17,7 +17,8 @@ class ReminderResource extends JsonResource
         return [
             'id'             => $this->id,
             'appointment_id' => $this->appointment_id,
-            'remind_at'      => $this->remind_at?->format('Y-m-d\TH:i:s'), // ISO 8601
+            'remind_at' => optional($this->remind_at)->format('Y-m-d H:i:s'),
+
             'method'         => $this->method,
             
             // Inclui o relacionamento, se estiver carregado

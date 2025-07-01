@@ -6,7 +6,8 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use App\Filters\AppointmentFilter;
-use Reminder;
+use App\Filters\QueryFilter;
+use App\Models\Reminder;
 
 class Appointment extends Model
 {
@@ -41,8 +42,9 @@ class Appointment extends Model
     /**
      * Escopo de filtro para AppointmentFilter
      */
-    public function scopeFilter($query, $filters)
-    {
-        return (new AppointmentFilter($filters))->apply($query);
-    }
+public function scopeFilter($query, QueryFilter $filters)
+{
+    return $filters->apply($query);
+}
+
 }

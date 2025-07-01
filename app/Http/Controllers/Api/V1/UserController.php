@@ -128,15 +128,30 @@ class UserController extends Controller
     }
 
     // ✅ EXCLUIR um usuário (admin)
-    public function destroyById($id)
-    {
-        $this->authorizeAdmin();
+   public function destroyById($id)
+{
+    $this->authorizeAdmin();
 
-        $user = User::findOrFail($id);
-        $user->delete();
+    $user = User::withTrashed()->find($id);
 
-        return response()->json(['message' => 'Usuário deletado com sucesso.']);
+    if (!$user) {
+        return response()->json(['message' => 'Usuário não encontrado.'], 404);
     }
+
+    if ($user->trashed()) {
+        return response()->json(['message' => 'Usuário já foi deletado.'], 400);
+    }
+
+    // Impede que um admin delete ele mesmo
+    if ($user->id === auth()->id()) {
+        return response()->json(['message' => 'Você não pode deletar a si mesmo.'], 403);
+    }
+
+    $user->delete(); // soft delete
+
+    return response()->json(['message' => 'Usuário deletado com sucesso.']);
+}
+
 
     // ✅ RESTAURAR usuário soft-deletado (admin)
     public function restoreById($id)

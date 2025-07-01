@@ -12,8 +12,9 @@ use App\Http\Controllers\Api\V1\UserController;
 Route::prefix('auth')->group(function () {
     Route::post('register', [AuthController::class, 'register']);
     Route::post('login', [AuthController::class, 'login']);
-    Route::post('logout', [AuthController::class, 'logout']);
+   Route::middleware('auth:sanctum')->post('logout', [AuthController::class, 'logout']);
 });
+
 
 // ROTA PÚBLICA PARA OBTER USUÁRIO AUTENTICADO
 Route::middleware(['auth:sanctum'])->get('/user', function (Request $request) {
@@ -37,7 +38,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::delete('admin/users/{id}', [UserController::class, 'destroyById']);
     Route::patch('admin/users/{id}/restore', [UserController::class, 'restoreById']);
 
-    // ✅ Agendamentos e lembretes com apenas um controlador unificado
+    // Agendamentos e lembretes com apenas um controlador unificado
     Route::apiResource('appointments', AppointmentController::class);
     Route::apiResource('reminders', ReminderController::class);
 });

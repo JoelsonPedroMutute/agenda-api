@@ -21,8 +21,9 @@ class AppointmentController extends Controller
         $this->service = $service;
     }
 
-    public function index(Request $request, AppointmentFilter $filter)
+    public function index(Request $request)
     {
+        $filter = new AppointmentFilter($request); // ✅ Corrigido aqui
         $perPage = $request->per_page ?? 10;
 
         if (Auth::user()->role === 'admin') {

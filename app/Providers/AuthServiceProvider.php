@@ -18,11 +18,13 @@ class AuthServiceProvider extends ServiceProvider
     /**
      * Bootstrap services.
      */
-    public function boot(): void
-    {
-        // Bloquear usuários soft-deletados de usarem tokens ativos
-        Sanctum::authenticateAccessTokensUsing(function ($accessToken, $isValid) {
-            return $isValid && is_null($accessToken->tokenable->deleted_at);
-        });
-    }
+  public function boot(): void
+{
+    // Bloquear usuários soft-deletados ou inexistentes
+    Sanctum::authenticateAccessTokensUsing(function ($accessToken, $isValid) {
+        $user = $accessToken->tokenable;
+
+        return $isValid && $user && is_null($user->deleted_at);
+    });
+}
 }
