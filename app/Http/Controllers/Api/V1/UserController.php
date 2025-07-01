@@ -12,6 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Symfony\Component\HttpFoundation\Response;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -23,14 +24,14 @@ class UserController extends Controller
         $this->service = $service;
     }
 
-    // ✅ Dados do usuário autenticado
+    //  Dados do usuário autenticado
     public function show(Request $request)
     {
         $user = $request->user()->load('appointments.reminders');
         return new UserResource($user);
     }
 
-    // ✅ Atualiza dados do próprio usuário
+    //  Atualiza dados do próprio usuário
     public function update(UpdateUserRequest $request)
     {
         $user = $request->user();
@@ -42,7 +43,7 @@ class UserController extends Controller
         ]);
     }
 
-    // ✅ Altera senha
+    //  Altera senha
     public function changePassword(ChangePasswordRequest $request)
     {
         $user = $request->user();
@@ -56,7 +57,7 @@ class UserController extends Controller
         return response()->json(['message' => 'Senha alterada com sucesso.']);
     }
 
-    // ✅ Exclui a própria conta (soft delete)
+    //  Exclui a própria conta (soft delete)
     public function destroySelf(Request $request)
     {
         $user = $request->user();
@@ -65,7 +66,7 @@ class UserController extends Controller
         return response()->json(['message' => 'Conta deletada com sucesso.']);
     }
 
-    // ✅ LISTAR todos os usuários (apenas admin)
+    //  LISTAR todos os usuários (apenas admin)
     public function index()
     {
         $this->authorizeAdmin();
@@ -75,7 +76,7 @@ class UserController extends Controller
         );
     }
 
-    // ✅ CRIAR novo usuário (admin)
+    //  CRIAR novo usuário (admin)
     public function store(Request $request)
     {
         $this->authorizeAdmin();
@@ -100,7 +101,7 @@ class UserController extends Controller
         ], 201);
     }
 
-    // ✅ MOSTRAR um usuário pelo ID (admin)
+    //  MOSTRAR um usuário pelo ID (admin)
     public function showById($id)
     {
         $this->authorizeAdmin();
@@ -109,7 +110,7 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    // ✅ ATUALIZAR um usuário (admin)
+    //  ATUALIZAR um usuário (admin)
     public function updateById(Request $request, $id)
     {
         $this->authorizeAdmin();
@@ -127,33 +128,18 @@ class UserController extends Controller
         return new UserResource($user);
     }
 
-    // ✅ EXCLUIR um usuário (admin)
-   public function destroyById($id)
-{
-    $this->authorizeAdmin();
+    //  EXCLUIR um usuário (admin)
+    public function destroyById($id)
+    {
+        $this->authorizeAdmin();
 
-    $user = User::withTrashed()->find($id);
+        $user = User::findOrFail($id);
+        $user->delete();
 
-    if (!$user) {
-        return response()->json(['message' => 'Usuário não encontrado.'], 404);
+        return response()->json(['message' => 'Usuário deletado com sucesso.']);
     }
 
-    if ($user->trashed()) {
-        return response()->json(['message' => 'Usuário já foi deletado.'], 400);
-    }
-
-    // Impede que um admin delete ele mesmo
-    if ($user->id === auth()->id()) {
-        return response()->json(['message' => 'Você não pode deletar a si mesmo.'], 403);
-    }
-
-    $user->delete(); // soft delete
-
-    return response()->json(['message' => 'Usuário deletado com sucesso.']);
-}
-
-
-    // ✅ RESTAURAR usuário soft-deletado (admin)
+    //  RESTAURAR usuário soft-deletado (admin)
     public function restoreById($id)
     {
         $this->authorizeAdmin();
@@ -168,11 +154,11 @@ class UserController extends Controller
         return response()->json(['message' => 'Usuário não está deletado.'], 400);
     }
 
-    // ⚙️ Verifica se o usuário é admin
+    //  Verifica se o usuário é admin
   protected function authorizeAdmin(): void
 {
+    
     $user = auth()->user();
-
     if (!$user || !$user->isAdmin()) {
         abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
     }

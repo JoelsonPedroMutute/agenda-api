@@ -12,12 +12,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use OpenApi\Annotations as OA;
 
-/**
- * @OA\Tag(
- *     name="Reminders",
- *     description="Operações relacionadas a lembretes"
- * )
- */
+
 class ReminderController extends Controller
 {
     protected ReminderService $service;
@@ -28,16 +23,7 @@ class ReminderController extends Controller
         $this->service = $service;
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/reminders",
-     *     summary="Listar lembretes (baseado no perfil do usuário)",
-     *     tags={"Reminders"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="per_page", in="query", @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Lista de lembretes", @OA\JsonContent(type="array", @OA\Items(ref="#/components/schemas/ReminderResource")))
-     * )
-     */
+  
     public function index(Request $request, ReminderFilter $filter)
     {
         $user = Auth::user();
@@ -49,16 +35,7 @@ class ReminderController extends Controller
         return ReminderResource::collection($reminders);
     }
 
-    /**
-     * @OA\Post(
-     *     path="/api/v1/reminders",
-     *     summary="Criar lembrete",
-     *     tags={"Reminders"},
-     *     security={{"sanctum":{}}},
-     *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/StoreReminderRequest")),
-     *     @OA\Response(response=201, description="Lembrete criado", @OA\JsonContent(ref="#/components/schemas/ReminderResource"))
-     * )
-     */
+   
     public function store(StoreReminderRequest $request)
     {
         $user = Auth::user();
@@ -69,16 +46,7 @@ class ReminderController extends Controller
         return new ReminderResource($reminder);
     }
 
-    /**
-     * @OA\Get(
-     *     path="/api/v1/reminders/{id}",
-     *     summary="Ver lembrete",
-     *     tags={"Reminders"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Detalhes do lembrete", @OA\JsonContent(ref="#/components/schemas/ReminderResource"))
-     * )
-     */
+   
     public function show($id)
     {
         $user = Auth::user();
@@ -89,17 +57,7 @@ class ReminderController extends Controller
         return new ReminderResource($reminder);
     }
 
-    /**
-     * @OA\Put(
-     *     path="/api/v1/reminders/{id}",
-     *     summary="Atualizar lembrete",
-     *     tags={"Reminders"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\RequestBody(required=true, @OA\JsonContent(ref="#/components/schemas/UpdateReminderRequest")),
-     *     @OA\Response(response=200, description="Lembrete atualizado", @OA\JsonContent(ref="#/components/schemas/ReminderResource"))
-     * )
-     */
+  
     public function update(UpdateReminderRequest $request, $id)
     {
         $user = Auth::user();
@@ -110,16 +68,7 @@ class ReminderController extends Controller
         return new ReminderResource($reminder);
     }
 
-    /**
-     * @OA\Delete(
-     *     path="/api/v1/reminders/{id}",
-     *     summary="Excluir lembrete",
-     *     tags={"Reminders"},
-     *     security={{"sanctum":{}}},
-     *     @OA\Parameter(name="id", in="path", required=true, @OA\Schema(type="integer")),
-     *     @OA\Response(response=200, description="Lembrete excluído", @OA\JsonContent(@OA\Property(property="message", type="string", example="Lembrete excluído com sucesso.")))
-     * )
-     */
+   
     public function destroy($id)
     {
         $user = Auth::user();

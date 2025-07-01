@@ -13,6 +13,7 @@
     "laravel/tinker": "^2.10.1"
   },
   "require-dev": {
+    "barryvdh/laravel-ide-helper": "^3.5",
     "fakerphp/faker": "^1.23",
     "laravel/breeze": "^2.3",
     "laravel/pail": "^1.2.2",
@@ -35,7 +36,9 @@
   },
   "autoload-dev": {
     "psr-4": {
-      "Tests\\": "tests/"
+      "Tests\\": "tests/",
+      "Database\\Factories\\": "database/factories/",
+    "Database\\Seeders\\": "database/seeders/"
     }
   },
   "scripts": {

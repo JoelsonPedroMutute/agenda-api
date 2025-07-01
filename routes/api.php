@@ -7,6 +7,7 @@ use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\V1\AppointmentController;
 use App\Http\Controllers\Api\V1\ReminderController;
 use App\Http\Controllers\Api\V1\UserController;
+use App\Http\Controllers\Auth\PasswordResetController;
 
 // ROTAS DE AUTENTICAÇÃO
 Route::prefix('auth')->group(function () {
@@ -42,3 +43,15 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::apiResource('appointments', AppointmentController::class);
     Route::apiResource('reminders', ReminderController::class);
 });
+
+// ROTAS DE RECUPERAÇÃO DE SENHA (públicas)
+Route::post('/forgot-password', [PasswordResetController::class, 'sendResetLink'])->name('password.email');
+Route::post('/reset-password', [PasswordResetController::class, 'resetPassword'])->name('password.update');
+
+
+Route::get('/reset-password/{token}', function ($token) {
+    return response()->json([
+        'message' => 'Página de redefinição de senha (frontend)',
+        'token' => $token,
+    ]);
+})->name('password.reset');
