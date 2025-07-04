@@ -29,8 +29,7 @@
       "Database\\Seeders\\": "database/seeders/"
     },
     "files": [
-      "app/Swagger/SwaggerAnnotations.php",
-        "app/Swagger/Schemas/AppointmentSchemas.php"
+      
     ]
   },
   "autoload-dev": {
