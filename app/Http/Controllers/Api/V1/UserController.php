@@ -18,20 +18,31 @@ class UserController extends Controller
 {
     protected UserService $service;
 
+    /**
+     * Aplica autenticação Sanctum e injeta o serviço do usuário.
+     */
     public function __construct(UserService $service)
     {
         $this->middleware('auth:sanctum');
         $this->service = $service;
     }
 
-    //  Dados do usuário autenticado
+    /**
+     * Retorna os dados do usuário autenticado, incluindo compromissos e lembretes.
+     */
     public function show(Request $request)
     {
         $user = $request->user()->load('appointments.reminders');
-        return new UserResource($user);
+
+        return response()->json([
+            'message' => 'Dados do usuário recuperados com sucesso.',
+            'user' => new UserResource($user)
+        ], 200);
     }
 
-    //  Atualiza dados do próprio usuário
+    /**
+     * Atualiza os dados do próprio usuário autenticado.
+     */
     public function update(UpdateUserRequest $request)
     {
         $user = $request->user();
@@ -40,10 +51,13 @@ class UserController extends Controller
         return response()->json([
             'message' => 'Dados atualizados com sucesso.',
             'user' => new UserResource($user),
-        ]);
+        ], 200);
     }
 
-    //  Altera senha
+    /**
+     * Altera a senha do usuário autenticado.
+     * Verifica se a senha atual está correta antes de alterar.
+     */
     public function changePassword(ChangePasswordRequest $request)
     {
         $user = $request->user();
@@ -54,29 +68,53 @@ class UserController extends Controller
 
         $this->service->changePassword($user, $request->new_password);
 
-        return response()->json(['message' => 'Senha alterada com sucesso.']);
+        return response()->json(['message' => 'Senha alterada com sucesso.'], 200);
     }
 
-    //  Exclui a própria conta (soft delete)
+    /**
+     * Exclui (soft delete) a própria conta do usuário autenticado.
+     */
     public function destroySelf(Request $request)
     {
         $user = $request->user();
         $user->delete();
 
-        return response()->json(['message' => 'Conta deletada com sucesso.']);
+        return response()->json(['message' => 'Conta deletada com sucesso.'], 204);
     }
 
-    //  LISTAR todos os usuários (apenas admin)
+    /**
+     * Lista todos os usuários da aplicação com seus relacionamentos.
+     * Ação disponível apenas para administradores.
+     */
     public function index()
     {
         $this->authorizeAdmin();
 
-        return UserResource::collection(
-            User::with('appointments.reminders')->paginate(10)
-        );
+        return response()->json([
+            'message' => 'Lista de usuários recuperada com sucesso.',
+            'users' => UserResource::collection(
+                User::with('appointments.reminders')->paginate(10)
+            ),
+        ], 200);
     }
 
-    //  CRIAR novo usuário (admin)
+    /**
+     * Lista todos os usuários sem agendamentos nem lembretes.
+     * Ação disponível apenas para administradores.
+     */
+    public function indexWithoutRelations()
+    {
+        $this->authorizeAdmin();
+
+        return response()->json([
+            'message' => 'Lista de usuários sem relações recuperada com sucesso.',
+            'users' => UserResource::collection(User::paginate(10)),
+        ], 200);
+    }
+
+    /**
+     * Cria um novo usuário na aplicação (apenas admin).
+     */
     public function store(Request $request)
     {
         $this->authorizeAdmin();
@@ -101,16 +139,24 @@ class UserController extends Controller
         ], 201);
     }
 
-    //  MOSTRAR um usuário pelo ID (admin)
+    /**
+     * Exibe os dados de um usuário específico pelo ID (apenas admin).
+     */
     public function showById($id)
     {
         $this->authorizeAdmin();
 
         $user = User::with('appointments.reminders')->findOrFail($id);
-        return new UserResource($user);
+
+        return response()->json([
+            'message' => 'Usuário encontrado com sucesso.',
+            'user' => new UserResource($user),
+        ], 200);
     }
 
-    //  ATUALIZAR um usuário (admin)
+    /**
+     * Atualiza os dados de um usuário específico pelo ID (apenas admin).
+     */
     public function updateById(Request $request, $id)
     {
         $this->authorizeAdmin();
@@ -125,10 +171,15 @@ class UserController extends Controller
 
         $user->update($validated);
 
-        return new UserResource($user);
+        return response()->json([
+            'message' => 'Usuário atualizado com sucesso.',
+            'user' => new UserResource($user)
+        ], 200);
     }
 
-    //  EXCLUIR um usuário (admin)
+    /**
+     * Exclui (soft delete) um usuário pelo ID (apenas admin).
+     */
     public function destroyById($id)
     {
         $this->authorizeAdmin();
@@ -136,10 +187,12 @@ class UserController extends Controller
         $user = User::findOrFail($id);
         $user->delete();
 
-        return response()->json(['message' => 'Usuário deletado com sucesso.']);
+        return response()->json(['message' => 'Usuário deletado com sucesso.'], 204);
     }
 
-    //  RESTAURAR usuário soft-deletado (admin)
+    /**
+     * Restaura um usuário deletado via soft delete (apenas admin).
+     */
     public function restoreById($id)
     {
         $this->authorizeAdmin();
@@ -148,19 +201,21 @@ class UserController extends Controller
 
         if ($user->trashed()) {
             $user->restore();
-            return response()->json(['message' => 'Usuário restaurado com sucesso.']);
+            return response()->json(['message' => 'Usuário restaurado com sucesso.'], 200);
         }
 
         return response()->json(['message' => 'Usuário não está deletado.'], 400);
     }
 
-    //  Verifica se o usuário é admin
-  protected function authorizeAdmin(): void
-{
-    
-    $user = auth()->user();
-    if (!$user || !$user->isAdmin()) {
-        abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
+    /**
+     * Verifica se o usuário atual é um administrador.
+     * Caso não seja, interrompe a requisição com erro 403.
+     */
+    protected function authorizeAdmin(): void
+    {
+        $user = auth()->user();
+        if (!$user || !$user->isAdmin()) {
+            abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
+        }
     }
-}
 }

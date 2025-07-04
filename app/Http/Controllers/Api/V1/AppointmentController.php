@@ -11,26 +11,36 @@ use App\Filters\AppointmentFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
+/**
+ * Controlador responsável por gerenciar os compromissos (appointments) da API.
+ * Os métodos são protegidos por autenticação Sanctum.
+ * A lógica de negócio está separada no serviço AppointmentService.
+ */
 class AppointmentController extends Controller
 {
-    protected $service;
+    protected AppointmentService $service;
 
+    /**
+     * Injeta o serviço e aplica o middleware de autenticação.
+     */
     public function __construct(AppointmentService $service)
     {
         $this->middleware('auth:sanctum');
         $this->service = $service;
     }
 
+    /**
+     * Lista compromissos com paginação e filtros dinâmicos.
+     * Admin vê todos, usuários comuns apenas os próprios.
+     */
     public function index(Request $request)
     {
-        $filter = new AppointmentFilter($request); // ✅ Corrigido aqui
+        $filter = new AppointmentFilter($request);
         $perPage = $request->per_page ?? 10;
 
-        if (Auth::user()->role === 'admin') {
-            $appointments = $this->service->getAllAsAdmin($filter, $perPage);
-        } else {
-            $appointments = $this->service->getAll(Auth::id(), $filter, $perPage);
-        }
+        $appointments = Auth::user()->role === 'admin'
+            ? $this->service->getAllAsAdmin($filter, $perPage)
+            : $this->service->getAll(Auth::id(), $filter, $perPage);
 
         return response()->json([
             'success' => true,
@@ -53,9 +63,32 @@ class AppointmentController extends Controller
                     ]
                 ]
             ]
-        ]);
+        ], 200);
     }
 
+    /**
+     * Lista compromissos sem carregar relacionamentos (modo simplificado).
+     * Útil para interfaces que não precisam de detalhes.
+     */
+    public function indexSimple(Request $request)
+    {
+        $perPage = $request->per_page ?? 10;
+        $user = Auth::user();
+
+        $appointments = $user->role === 'admin'
+            ? \App\Models\Appointment::paginate($perPage)
+            : \App\Models\Appointment::where('user_id', $user->id)->paginate($perPage);
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Compromissos (simples) recuperados com sucesso.',
+            'data' => $appointments,
+        ], 200);
+    }
+
+    /**
+     * Cria um novo compromisso.
+     */
     public function store(StoreAppointmentRequest $request)
     {
         $user = Auth::user();
@@ -74,6 +107,9 @@ class AppointmentController extends Controller
         ], 201);
     }
 
+    /**
+     * Exibe um compromisso específico.
+     */
     public function show($id)
     {
         $appointment = $this->service->find(Auth::id(), $id);
@@ -82,9 +118,12 @@ class AppointmentController extends Controller
             'success' => true,
             'message' => 'Compromisso encontrado com sucesso.',
             'data' => new AppointmentResource($appointment),
-        ]);
+        ], 200);
     }
 
+    /**
+     * Atualiza um compromisso existente.
+     */
     public function update(UpdateAppointmentRequest $request, $id)
     {
         $appointment = $this->service->update(Auth::id(), $id, $request->validated());
@@ -93,9 +132,12 @@ class AppointmentController extends Controller
             'success' => true,
             'message' => 'Compromisso atualizado com sucesso.',
             'data' => new AppointmentResource($appointment),
-        ]);
+        ], 200);
     }
 
+    /**
+     * Remove um compromisso (soft delete).
+     */
     public function destroy($id)
     {
         $this->service->delete(Auth::id(), $id);

@@ -7,14 +7,12 @@ use Illuminate\Database\Seeder;
 use App\Models\Appointment;
 use App\Models\User;
 
+
 class AppointmentSeeder extends Seeder
 {
-  public function run(): void
-{
-    Appointment::factory()
-        ->count(20)
-        ->create(); // E o factory já contém ->for(User::factory())
-}
-
+    public function run(): void
+    {
+        Appointment::factory()->count(20)->create();
+    }
 }
 

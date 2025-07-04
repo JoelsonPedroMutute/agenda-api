@@ -5,24 +5,36 @@ namespace App\Services;
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
 
+/**
+ * Serviço responsável por lidar com regras de negócio
+ * relacionadas ao usuário autenticado.
+ */
 class UserService
 {
     /**
-     * Atualiza os dados do usuário.
+     * Atualiza os dados do usuário autenticado.
+     *
+     * @param User $user Instância do usuário que será atualizado.
+     * @param array $data Dados validados do formulário.
+     * @return User Usuário atualizado.
      */
     public function updateUser(User $user, array $data): User
     {
-        $user->update($data);
+        $user->update($data); // Atualiza nome, email, etc.
         return $user;
     }
 
     /**
-     * Altera a senha do usuário, utilizando hash seguro.
+     * Altera a senha do usuário autenticado.
+     *
+     * @param User $user Instância do usuário.
+     * @param string $newPassword Nova senha em texto plano.
+     * @return User Usuário com senha atualizada.
      */
     public function changePassword(User $user, string $newPassword): User
     {
         $user->update([
-            'password' => Hash::make($newPassword),
+            'password' => Hash::make($newPassword), // Garante criptografia segura.
         ]);
 
         return $user;

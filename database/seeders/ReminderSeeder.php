@@ -11,9 +11,12 @@ class ReminderSeeder extends Seeder
 {
     public function run(): void
     {
-        Reminder::factory()
-            ->count(30)
-            ->for(Appointment::inRandomOrder()->first())
-            ->create();
+        $appointments = Appointment::inRandomOrder()->take(10)->get();
+
+        $appointments->each(function ($appointment) {
+            Reminder::factory()->count(3)->create([
+                'appointment_id' => $appointment->id,
+            ]);
+        });
     }
 }
