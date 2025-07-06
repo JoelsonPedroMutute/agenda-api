@@ -18,14 +18,19 @@ class AppointmentService
      * @param int $userId ID do usuário autenticado.
      * @param mixed $filter Instância de filtro (AppointmentFilter).
      * @param int $perPage Quantidade de itens por página.
+     * @param bool $withRelations Indica se deve carregar os relacionamentos.
      * @return LengthAwarePaginator
      */
-    public function getAll(int $userId, $filter, int $perPage = 10): LengthAwarePaginator
+    public function getAll(int $userId, $filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
     {
-        return Appointment::where('user_id', $userId)
-            ->with('reminders') // eager loading dos lembretes
-            ->filter($filter)   // aplica filtros se existirem
-            ->paginate($perPage);
+        $query = Appointment::where('user_id', $userId)
+            ->filter($filter); // aplica filtros
+
+        if ($withRelations) {
+            $query->with('reminders'); // eager loading dos lembretes se solicitado
+        }
+
+        return $query->paginate($perPage);
     }
 
     /**
@@ -109,13 +114,18 @@ class AppointmentService
      *
      * @param mixed $filter Filtro a ser aplicado (AppointmentFilter).
      * @param int $perPage Quantidade por página.
+     * @param bool $withRelations Indica se deve carregar os relacionamentos.
      * @return LengthAwarePaginator
      */
-    public function getAllAsAdmin($filter, int $perPage = 10): LengthAwarePaginator
+    public function getAllAsAdmin($filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
     {
-        return Appointment::with('user', 'reminders')
-            ->filter($filter)
-            ->paginate($perPage);
+        $query = Appointment::filter($filter); // aplica filtros
+
+        if ($withRelations) {
+            $query->with('user', 'reminders'); // carrega relacionamentos se solicitado
+        }
+
+        return $query->paginate($perPage);
     }
 
     /**
@@ -129,4 +139,3 @@ class AppointmentService
         $appointment->delete();
     }
 }
-

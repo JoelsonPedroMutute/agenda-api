@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\User;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 
 /**
  * Serviço responsável por lidar com regras de negócio
@@ -38,5 +39,33 @@ class UserService
         ]);
 
         return $user;
+    }
+
+    /**
+     * Recupera todos os usuários com ou sem relacionamentos, conforme parâmetro.
+     *
+     * @param bool $withRelations Define se deve carregar appointments e reminders.
+     * @param int $perPage Quantidade por página.
+     * @return LengthAwarePaginator
+     */
+    public function getAll(bool $withRelations, int $perPage = 10): LengthAwarePaginator
+    {
+        return $withRelations
+            ? User::with('appointments.reminders')->paginate($perPage)
+            : User::paginate($perPage);
+    }
+
+    /**
+     * Recupera um usuário por ID, com ou sem relacionamentos.
+     *
+     * @param int $id ID do usuário.
+     * @param bool $withRelations Define se deve carregar appointments e reminders.
+     * @return User
+     */
+    public function findById(int $id, bool $withRelations = true): User
+    {
+        return $withRelations
+            ? User::with('appointments.reminders')->findOrFail($id)
+            : User::findOrFail($id);
     }
 }

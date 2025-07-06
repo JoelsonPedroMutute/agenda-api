@@ -13,7 +13,12 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
+use App\Filters\UserFilter; // ✅ Importa a classe de filtro dedicada
 
+/**
+ * Controlador responsável pela gestão de usuários.
+ * Inclui operações para usuários autenticados (perfil) e administradores (gestão completa).
+ */
 class UserController extends Controller
 {
     protected UserService $service;
@@ -28,11 +33,16 @@ class UserController extends Controller
     }
 
     /**
-     * Retorna os dados do usuário autenticado, incluindo compromissos e lembretes.
+     * Retorna os dados do usuário autenticado, com ou sem os relacionamentos.
      */
     public function show(Request $request)
     {
-        $user = $request->user()->load('appointments.reminders');
+        $withRelations = $request->boolean('with_relations', true);
+        $user = $request->user();
+
+        if ($withRelations) {
+            $user->load('appointments.reminders');
+        }
 
         return response()->json([
             'message' => 'Dados do usuário recuperados com sucesso.',
@@ -55,8 +65,7 @@ class UserController extends Controller
     }
 
     /**
-     * Altera a senha do usuário autenticado.
-     * Verifica se a senha atual está correta antes de alterar.
+     * Permite que o usuário autenticado altere sua senha.
      */
     public function changePassword(ChangePasswordRequest $request)
     {
@@ -72,7 +81,7 @@ class UserController extends Controller
     }
 
     /**
-     * Exclui (soft delete) a própria conta do usuário autenticado.
+     * Soft delete da própria conta do usuário autenticado.
      */
     public function destroySelf(Request $request)
     {
@@ -83,37 +92,29 @@ class UserController extends Controller
     }
 
     /**
-     * Lista todos os usuários da aplicação com seus relacionamentos.
-     * Ação disponível apenas para administradores.
+     * Lista os usuários do sistema com ou sem relacionamentos.
+     * Agora também suporta listagem de deletados com `trashed=only|with`.
+     * Acesso restrito a administradores.
      */
-    public function index()
+    public function index(Request $request)
     {
         $this->authorizeAdmin();
+
+        // ✅ Aplicação do filtro de usuários usando a classe dedicada
+        $filter = new UserFilter($request);
+        $query = $filter->apply(User::query());
+
+        // Paginação final (mantida como no seu código original)
+        $users = $query->paginate(10);
 
         return response()->json([
             'message' => 'Lista de usuários recuperada com sucesso.',
-            'users' => UserResource::collection(
-                User::with('appointments.reminders')->paginate(10)
-            ),
+            'users' => UserResource::collection($users),
         ], 200);
     }
 
     /**
-     * Lista todos os usuários sem agendamentos nem lembretes.
-     * Ação disponível apenas para administradores.
-     */
-    public function indexWithoutRelations()
-    {
-        $this->authorizeAdmin();
-
-        return response()->json([
-            'message' => 'Lista de usuários sem relações recuperada com sucesso.',
-            'users' => UserResource::collection(User::paginate(10)),
-        ], 200);
-    }
-
-    /**
-     * Cria um novo usuário na aplicação (apenas admin).
+     * Cria um novo usuário (admin only).
      */
     public function store(Request $request)
     {
@@ -140,13 +141,18 @@ class UserController extends Controller
     }
 
     /**
-     * Exibe os dados de um usuário específico pelo ID (apenas admin).
+     * Exibe os dados de um usuário específico pelo ID.
+     * Pode incluir relacionamentos, se solicitado.
+     * Acesso restrito a administradores.
      */
-    public function showById($id)
+    public function showById(Request $request, $id)
     {
         $this->authorizeAdmin();
 
-        $user = User::with('appointments.reminders')->findOrFail($id);
+        $withRelations = $request->boolean('with_relations', true);
+        $user = $withRelations
+            ? User::with('appointments.reminders')->findOrFail($id)
+            : User::findOrFail($id);
 
         return response()->json([
             'message' => 'Usuário encontrado com sucesso.',
@@ -155,7 +161,8 @@ class UserController extends Controller
     }
 
     /**
-     * Atualiza os dados de um usuário específico pelo ID (apenas admin).
+     * Atualiza os dados de um usuário específico pelo ID.
+     * Acesso restrito a administradores.
      */
     public function updateById(Request $request, $id)
     {
@@ -177,43 +184,49 @@ class UserController extends Controller
         ], 200);
     }
 
-    /**
-     * Exclui (soft delete) um usuário pelo ID (apenas admin).
+     /**
+     * Deleta (soft delete) um usuário pelo ID.
+     * Acesso restrito a administradores.
+     * Personalizado para evitar erro padrão ao deletar um usuário já deletado.
      */
     public function destroyById($id)
     {
         $this->authorizeAdmin();
 
-        $user = User::findOrFail($id);
-        $user->delete();
+        // Busca inclusive os usuários já deletados
+        $user = User::withTrashed()->find($id);
 
-        return response()->json(['message' => 'Usuário deletado com sucesso.'], 204);
-    }
-
-    /**
-     * Restaura um usuário deletado via soft delete (apenas admin).
-     */
-    public function restoreById($id)
-    {
-        $this->authorizeAdmin();
-
-        $user = User::withTrashed()->findOrFail($id);
-
-        if ($user->trashed()) {
-            $user->restore();
-            return response()->json(['message' => 'Usuário restaurado com sucesso.'], 200);
+        // Se o usuário não existir, retorna erro personalizado
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não encontrado.',
+            ], 404);
         }
 
-        return response()->json(['message' => 'Usuário não está deletado.'], 400);
+        // Se o usuário já estiver deletado, retorna aviso
+        if ($user->trashed()) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário já foi deletado anteriormente.',
+            ], 409); // 409 = Conflict
+        }
+
+        // Caso contrário, faz o soft delete
+        $user->delete();
+
+        // 204 No Content => não retorna corpo JSON
+        return response()->noContent();
     }
 
     /**
-     * Verifica se o usuário atual é um administrador.
-     * Caso não seja, interrompe a requisição com erro 403.
+     * Verifica se o usuário autenticado é um administrador.
+     * Caso contrário, aborta com erro 403 (Forbidden).
      */
     protected function authorizeAdmin(): void
     {
         $user = auth()->user();
+
         if (!$user || !$user->isAdmin()) {
             abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
         }

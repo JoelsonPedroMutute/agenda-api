@@ -29,41 +29,23 @@ class ReminderController extends Controller
 
     /**
      * Lista todos os lembretes com filtros e paginação.
+     * Se o parâmetro `with_relations=false` for passado na query,
+     * os relacionamentos não serão carregados (modo simplificado).
      */
     public function index(Request $request, ReminderFilter $filter)
     {
         $user = Auth::user();
         $perPage = $request->per_page ?? 10;
+        $withRelations = filter_var($request->query('with_relations', 'true'), FILTER_VALIDATE_BOOLEAN);
 
         $reminders = $user->role === 'admin'
-            ? $this->service->getAllAdmin($filter, $perPage)
-            : $this->service->getAll($user->id, $filter, $perPage);
+            ? $this->service->getAllAdmin($filter, $perPage, $withRelations)
+            : $this->service->getAll($user->id, $filter, $perPage, $withRelations);
 
         return response()->json([
             'success' => true,
             'message' => 'Lista de lembretes recuperada com sucesso.',
             'data' => ReminderResource::collection($reminders),
-        ], 200);
-    }
-
-    /**
-     * Lista todos os lembretes sem relacionamentos (modo simples).
-     */
-    public function indexSimple(Request $request)
-    {
-        $user = Auth::user();
-        $perPage = $request->per_page ?? 10;
-
-        $reminders = $user->role === 'admin'
-            ? \App\Models\Reminder::paginate($perPage)
-            : \App\Models\Reminder::whereHas('appointment', function ($q) use ($user) {
-                $q->where('user_id', $user->id);
-            })->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Lembretes (simples) recuperados com sucesso.',
-            'data' => $reminders,
         ], 200);
     }
 

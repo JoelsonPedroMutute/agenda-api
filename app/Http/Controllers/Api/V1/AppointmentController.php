@@ -32,15 +32,17 @@ class AppointmentController extends Controller
     /**
      * Lista compromissos com paginação e filtros dinâmicos.
      * Admin vê todos, usuários comuns apenas os próprios.
+     * Pode incluir ou não os relacionamentos via query: ?with_relations=false
      */
     public function index(Request $request)
     {
         $filter = new AppointmentFilter($request);
         $perPage = $request->per_page ?? 10;
+        $withRelations = $request->query('with_relations', 'true') === 'true';
 
         $appointments = Auth::user()->role === 'admin'
-            ? $this->service->getAllAsAdmin($filter, $perPage)
-            : $this->service->getAll(Auth::id(), $filter, $perPage);
+            ? $this->service->getAllAsAdmin($filter, $perPage, $withRelations)
+            : $this->service->getAll(Auth::id(), $filter, $perPage, $withRelations);
 
         return response()->json([
             'success' => true,
@@ -63,26 +65,6 @@ class AppointmentController extends Controller
                     ]
                 ]
             ]
-        ], 200);
-    }
-
-    /**
-     * Lista compromissos sem carregar relacionamentos (modo simplificado).
-     * Útil para interfaces que não precisam de detalhes.
-     */
-    public function indexSimple(Request $request)
-    {
-        $perPage = $request->per_page ?? 10;
-        $user = Auth::user();
-
-        $appointments = $user->role === 'admin'
-            ? \App\Models\Appointment::paginate($perPage)
-            : \App\Models\Appointment::where('user_id', $user->id)->paginate($perPage);
-
-        return response()->json([
-            'success' => true,
-            'message' => 'Compromissos (simples) recuperados com sucesso.',
-            'data' => $appointments,
         ], 200);
     }
 

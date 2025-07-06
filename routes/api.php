@@ -37,7 +37,7 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::put('admin/users/{id}', [UserController::class, 'updateById']);
     Route::delete('admin/users/{id}', [UserController::class, 'destroyById']);
     Route::patch('admin/users/{id}/restore', [UserController::class, 'restoreById']);
-    Route::get('admin/users-simple', [UserController::class, 'indexWithoutRelations']);
+ 
 
     // Agendamentos e lembretes com controladores unificados
     Route::apiResource('appointments', AppointmentController::class);

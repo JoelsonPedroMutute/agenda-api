@@ -40,11 +40,41 @@ class UpdateUserRequest extends FormRequest
                 'sometimes',
                 'required',
                 'email',
-                Rule::unique('users', 'email')->ignore($this->route('id')), // Ignora o próprio usuário no update
+                Rule::unique('users', 'email')->ignore($this->route('id')),
             ],
 
             // A senha é opcional (nullable), mas se enviada, deve ter no mínimo 8 caracteres e estar confirmada.
             'password' => 'nullable|string|min:8|confirmed',
+        ];
+    }
+
+    protected function prepareForValidation()
+{
+    // Se nenhum dos campos esperados estiver presente, lança uma exceção de validação
+    if (!$this->hasAny(['name', 'email', 'password'])) {
+        abort(response()->json([
+            'message' => 'Você deve enviar ao menos um campo para atualização.',
+        ], 422));
+    }
+}
+
+
+    /**
+     * Define mensagens personalizadas para os erros de validação.
+     */
+    public function messages(): array
+    {
+        return [
+            'name.required' => 'O nome é obrigatório.',
+            'name.string'   => 'O nome deve ser um texto.',
+            'name.max'      => 'O nome não pode ultrapassar 255 caracteres.',
+
+            'email.required' => 'O e-mail é obrigatório.',
+            'email.email'    => 'Informe um e-mail válido.',
+            'email.unique'   => 'Este e-mail já está sendo usado por outro usuário.',
+
+            'password.min'       => 'A nova senha deve ter no mínimo 8 caracteres.',
+            'password.confirmed' => 'A confirmação da senha não corresponde.',
         ];
     }
 }

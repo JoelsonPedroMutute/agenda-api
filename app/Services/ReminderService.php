@@ -21,54 +21,43 @@ class ReminderService
      * @param int $userId ID do usuário autenticado.
      * @param mixed $filter Instância do filtro ReminderFilter.
      * @param int $perPage Paginação (itens por página).
+     * @param bool $withRelations Define se carrega ou não os relacionamentos.
      * @return LengthAwarePaginator
      */
-    public function getAll(int $userId, $filter, int $perPage = 10): LengthAwarePaginator
+    public function getAll(int $userId, $filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
     {
-        return Reminder::whereHas('appointment', function ($query) use ($userId) {
-                $query->where('user_id', $userId); // somente compromissos do usuário
-            })
-            ->filter($filter)
-            ->paginate($perPage);
+        $query = Reminder::whereHas('appointment', function ($query) use ($userId) {
+            $query->where('user_id', $userId); // apenas compromissos do usuário
+        });
+
+        if ($withRelations) {
+            $query->with('appointment'); // carrega relacionamento se solicitado
+        }
+
+        return $query->filter($filter)->paginate($perPage);
     }
 
     /**
      * Cria um novo lembrete para um compromisso do usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param array $data Dados validados.
-     * @return Reminder
      */
     public function create(int $userId, array $data): Reminder
     {
-        // Garante que o compromisso realmente pertença ao usuário
         $appointment = auth()->user()->appointments()->findOrFail($data['appointment_id']);
-
         return $appointment->reminders()->create($data);
     }
 
     /**
      * Recupera um lembrete por ID, desde que esteja vinculado a um compromisso do usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param int $id ID do lembrete.
-     * @return Reminder
      */
     public function find(int $userId, int $id): Reminder
     {
         return Reminder::whereHas('appointment', function ($query) use ($userId) {
-                $query->where('user_id', $userId);
-            })
-            ->findOrFail($id);
+            $query->where('user_id', $userId);
+        })->findOrFail($id);
     }
 
     /**
      * Atualiza um lembrete pertencente ao usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param int $id ID do lembrete.
-     * @param array $data Dados validados.
-     * @return Reminder
      */
     public function update(int $userId, int $id, array $data): Reminder
     {
@@ -80,9 +69,6 @@ class ReminderService
 
     /**
      * Remove (soft delete) um lembrete do usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param int $id ID do lembrete.
      */
     public function delete(int $userId, int $id): void
     {
@@ -91,28 +77,30 @@ class ReminderService
     }
 
     // ------------------------
-    // 🔒 Ações exclusivas do ADMIN
+    //  Ações exclusivas do ADMIN
     // ------------------------
 
     /**
-     * [ADMIN] Lista todos os lembretes da aplicação com filtros e paginação.
+     * [ADMIN] Lista todos os lembretes com filtros e paginação.
      *
      * @param mixed $filter Instância de ReminderFilter.
      * @param int $perPage Paginação.
+     * @param bool $withRelations Define se carrega ou não os relacionamentos.
      * @return LengthAwarePaginator
      */
-    public function getAllAdmin($filter, int $perPage = 10): LengthAwarePaginator
+    public function getAllAdmin($filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
     {
-        return Reminder::with('appointment.user') // inclui o dono do compromisso
-            ->filter($filter)
-            ->paginate($perPage);
+        $query = Reminder::query();
+
+        if ($withRelations) {
+            $query->with('appointment.user'); // carrega relacionamentos se solicitado
+        }
+
+        return $query->filter($filter)->paginate($perPage);
     }
 
     /**
      * [ADMIN] Cria um lembrete para qualquer compromisso existente.
-     *
-     * @param array $data Dados validados.
-     * @return Reminder
      */
     public function createAdmin(array $data): Reminder
     {
@@ -122,9 +110,6 @@ class ReminderService
 
     /**
      * [ADMIN] Recupera qualquer lembrete pelo ID com relacionamentos.
-     *
-     * @param int $id ID do lembrete.
-     * @return Reminder
      */
     public function findAdmin(int $id): Reminder
     {
@@ -133,10 +118,6 @@ class ReminderService
 
     /**
      * [ADMIN] Atualiza qualquer lembrete.
-     *
-     * @param int $id ID do lembrete.
-     * @param array $data Dados validados.
-     * @return Reminder
      */
     public function updateAdmin(int $id, array $data): Reminder
     {
@@ -148,8 +129,6 @@ class ReminderService
 
     /**
      * [ADMIN] Remove qualquer lembrete (soft delete).
-     *
-     * @param int $id ID do lembrete.
      */
     public function deleteAdmin(int $id): void
     {
