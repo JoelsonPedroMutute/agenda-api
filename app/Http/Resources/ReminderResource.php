@@ -18,24 +18,30 @@ class ReminderResource extends JsonResource
      * Este método é chamado automaticamente quando retornamos
      * um `ReminderResource` em uma resposta JSON.
      */
-    public function toArray(Request $request): array
-    {
-        return [
-            // ID do lembrete
-            'id' => $this->id,
+   public function toArray(Request $request): array
+{
+    return [
+        // ID do lembrete
+        'id' => $this->id,
 
-            // ID do compromisso ao qual o lembrete pertence
-            'appointment_id' => $this->appointment_id,
+        // ID do compromisso ao qual o lembrete pertence
+        'appointment_id' => $this->appointment_id,
 
-            // Data e hora em que o lembrete deve ser disparado (formato Y-m-d H:i:s)
-            // Usa "optional(...)" para evitar erro se o campo for nulo
-            'remind_at' => optional($this->remind_at)->format('Y-m-d H:i:s'),
+        // Data e hora do lembrete
+        'remind_at' => optional($this->remind_at)->format('Y-m-d H:i:s'),
 
-            // Método de notificação: email, sms ou notification
-            'method' => $this->method,
+        // Método de notificação: email, sms ou notification
+        'method' => $this->method,
 
-            // Se o relacionamento com o compromisso estiver carregado, inclui os dados resumidos do compromisso
-            'appointment' => new AppointmentResource($this->whenLoaded('appointment')),
-        ];
-    }
+        // Status da SMS retornado pela Twilio (se aplicável)
+        'message_status' => $this->message_status,
+
+        // SID da SMS retornado pela Twilio (se aplicável)
+        'message_sid'    => $this->message_sid,
+
+        // Dados do compromisso (se carregado)
+        'appointment' => new AppointmentResource($this->whenLoaded('appointment')),
+    ];
+}
+
 }

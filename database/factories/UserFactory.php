@@ -19,6 +19,7 @@ class UserFactory extends Factory
             'password'          => static::$password ??= Hash::make('password'),
             'remember_token'    => Str::random(50),
             'role'              => 'user',
+            'phone_number'      => '+2449' . $this->faker->numberBetween(10000000, 99999999), // ✅
         ];
     }
 
@@ -32,4 +33,3 @@ class UserFactory extends Factory
         return $this->state(fn () => ['email_verified_at' => null]);
     }
 }
-

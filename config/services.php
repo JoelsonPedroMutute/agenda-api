@@ -13,6 +13,12 @@ return [
     | a conventional file to locate the various service credentials.
     |
     */
+    
+    'twilio' => [
+        'sid'   => env('TWILIO_SID'),
+        'token' => env('TWILIO_AUTH_TOKEN'),
+        'from'  => env('TWILIO_FROM'), // número verificado no Twilio, ex: +1415XXXXXXX
+    ],
 
     'postmark' => [
         'token' => env('POSTMARK_TOKEN'),

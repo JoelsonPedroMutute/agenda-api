@@ -30,6 +30,9 @@ Route::middleware('auth:sanctum')->prefix('v1')->group(function () {
     Route::put('user/password', [UserController::class, 'changePassword']);
     Route::delete('user', [UserController::class, 'destroySelf']);
 
+
+
+
     // Usuários (somente admin)
     Route::get('admin/users', [UserController::class, 'index']);
     Route::post('admin/users', [UserController::class, 'store']);

@@ -18,23 +18,15 @@ class UserResource extends JsonResource
      * Transforma o recurso User em um array para resposta JSON.
      */
     public function toArray(Request $request): array
-    {
-        return [
-            // Identificador único do usuário
-            'id'    => $this->id,
+{
+    return [
+        'id'            => $this->id,
+        'name'          => $this->name,
+        'email'         => $this->email,
+        'role'          => $this->role,
+        'phone_number'  => $this->phone_number, // ✅ Adicionado aqui
+        'appointments'  => AppointmentResource::collection($this->whenLoaded('appointments')),
+    ];
+}
 
-            // Nome do usuário
-            'name'  => $this->name,
-
-            // Endereço de email do usuário
-            'email' => $this->email,
-
-            // Papel do usuário: 'user' ou 'admin'
-            'role'  => $this->role,
-
-            // Lista de compromissos (appointments) associados ao usuário
-            // Só será incluída se tiver sido carregada com with('appointments')
-            'appointments' => AppointmentResource::collection($this->whenLoaded('appointments')),
-        ];
-    }
 }

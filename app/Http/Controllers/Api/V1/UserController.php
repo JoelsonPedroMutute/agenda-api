@@ -15,6 +15,7 @@ use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
 use App\Filters\UserFilter; // ✅ Importa a classe de filtro dedicada
 
+
 /**
  * Controlador responsável pela gestão de usuários.
  * Inclui operações para usuários autenticados (perfil) e administradores (gestão completa).
@@ -223,12 +224,13 @@ class UserController extends Controller
      * Verifica se o usuário autenticado é um administrador.
      * Caso contrário, aborta com erro 403 (Forbidden).
      */
-    protected function authorizeAdmin(): void
-    {
-        $user = auth()->user();
+   protected function authorizeAdmin(): void
+{
+    $user = \Illuminate\Support\Facades\Auth::user();
 
-        if (!$user || !$user->isAdmin()) {
-            abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
-        }
+    if (!$user || !$user->isAdmin()) {
+        abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
     }
+}
+
 }

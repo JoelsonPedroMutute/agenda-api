@@ -19,11 +19,14 @@ class Reminder extends Model
      * Define os campos que podem ser preenchidos automaticamente
      * ao criar ou atualizar lembretes.
      */
-    protected $fillable = [
-        'appointment_id',
-        'remind_at',
-        'method',
-    ];
+   protected $fillable = [
+    'appointment_id',
+    'remind_at',
+    'method',
+    'message_status',
+    'message_sid',
+];
+
 
     /**
      * Define como os atributos serão convertidos automaticamente.
