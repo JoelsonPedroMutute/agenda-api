@@ -13,8 +13,7 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rules\Password;
 use Symfony\Component\HttpFoundation\Response;
 use Illuminate\Support\Facades\Auth;
-use App\Filters\UserFilter; // ✅ Importa a classe de filtro dedicada
-
+use App\Filters\UserFilter; // Importa a classe de filtro dedicada
 
 /**
  * Controlador responsável pela gestão de usuários.
@@ -108,8 +107,20 @@ class UserController extends Controller
         // Paginação final (mantida como no seu código original)
         $users = $query->paginate(10);
 
+        // ✅ Personalização da mensagem com base nos parâmetros e se o resultado está vazio
+        $trashed = $request->query('trashed');
+
+        if ($users->isEmpty()) {
+            $message = match ($trashed) {
+                'only' => 'Não existem usuários deletados.',
+                default => 'Nenhum usuário encontrado.'
+            };
+        } else {
+            $message = 'Lista de usuários recuperada com sucesso.';
+        }
+
         return response()->json([
-            'message' => 'Lista de usuários recuperada com sucesso.',
+            'message' => $message,
             'users' => UserResource::collection($users),
         ], 200);
     }
@@ -151,9 +162,19 @@ class UserController extends Controller
         $this->authorizeAdmin();
 
         $withRelations = $request->boolean('with_relations', true);
-        $user = $withRelations
-            ? User::with('appointments.reminders')->findOrFail($id)
-            : User::findOrFail($id);
+
+        $query = $withRelations
+            ? User::with('appointments.reminders')
+            : User::query();
+
+        $user = $query->find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não encontrado com o ID informado.',
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         return response()->json([
             'message' => 'Usuário encontrado com sucesso.',
@@ -169,7 +190,15 @@ class UserController extends Controller
     {
         $this->authorizeAdmin();
 
-        $user = User::findOrFail($id);
+        // ✅ Substitui o findOrFail por find com verificação manual
+        $user = User::find($id);
+
+        if (!$user) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário não encontrado com o ID informado.'
+            ], Response::HTTP_NOT_FOUND);
+        }
 
         $validated = $request->validate([
             'name'  => 'sometimes|string|max:255',
@@ -185,7 +214,7 @@ class UserController extends Controller
         ], 200);
     }
 
-     /**
+    /**
      * Deleta (soft delete) um usuário pelo ID.
      * Acesso restrito a administradores.
      * Personalizado para evitar erro padrão ao deletar um usuário já deletado.
@@ -224,13 +253,12 @@ class UserController extends Controller
      * Verifica se o usuário autenticado é um administrador.
      * Caso contrário, aborta com erro 403 (Forbidden).
      */
-   protected function authorizeAdmin(): void
-{
-    $user = \Illuminate\Support\Facades\Auth::user();
+    protected function authorizeAdmin(): void
+    {
+        $user = Auth::user();
 
-    if (!$user || !$user->isAdmin()) {
-        abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
+        if (!$user || !$user->isAdmin()) {
+            abort(Response::HTTP_FORBIDDEN, 'Ação permitida apenas para administradores.');
+        }
     }
-}
-
 }

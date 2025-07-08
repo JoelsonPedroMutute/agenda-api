@@ -14,20 +14,13 @@ class AppointmentService
 {
     /**
      * Retorna todos os compromissos do usuário autenticado com paginação e filtros aplicados.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param mixed $filter Instância de filtro (AppointmentFilter).
-     * @param int $perPage Quantidade de itens por página.
-     * @param bool $withRelations Indica se deve carregar os relacionamentos.
-     * @return LengthAwarePaginator
      */
     public function getAll(int $userId, $filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
     {
-        $query = Appointment::where('user_id', $userId)
-            ->filter($filter); // aplica filtros
+        $query = Appointment::where('user_id', $userId)->filter($filter);
 
         if ($withRelations) {
-            $query->with('reminders'); // eager loading dos lembretes se solicitado
+            $query->with('reminders');
         }
 
         return $query->paginate($perPage);
@@ -35,25 +28,16 @@ class AppointmentService
 
     /**
      * Cria um novo compromisso para o usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param array $data Dados validados do compromisso.
-     * @return Appointment
      */
     public function create(int $userId, array $data): Appointment
     {
-        $data['user_id'] = $userId; // força o user_id a ser o usuário autenticado
+        $data['user_id'] = $userId;
         return Appointment::create($data);
     }
 
     /**
      * Retorna um compromisso específico que pertence ao usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param int $id ID do compromisso.
-     * @return Appointment
-     *
-     * @throws ModelNotFoundException se o compromisso não for encontrado ou não pertencer ao usuário.
+     * Lança exceção se o compromisso não existir ou não pertencer ao usuário.
      */
     public function find(int $userId, int $id): Appointment
     {
@@ -70,15 +54,10 @@ class AppointmentService
 
     /**
      * Atualiza os dados de um compromisso pertencente ao usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param int $id ID do compromisso.
-     * @param array $data Dados validados.
-     * @return Appointment
      */
     public function update(int $userId, int $id, array $data): Appointment
     {
-        $appointment = $this->find($userId, $id); // verifica se o user é dono
+        $appointment = $this->find($userId, $id);
         $appointment->update($data);
 
         return $appointment;
@@ -86,9 +65,6 @@ class AppointmentService
 
     /**
      * Realiza soft delete de um compromisso pertencente ao usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param int $id ID do compromisso.
      */
     public function delete(int $userId, int $id): void
     {
@@ -97,45 +73,61 @@ class AppointmentService
     }
 
     /**
-     * [ADMIN] Retorna um compromisso por ID, independente do usuário.
-     *
-     * @param int $id ID do compromisso.
-     * @return Appointment
-     *
-     * @throws ModelNotFoundException se o compromisso não for encontrado.
+     * [ADMIN] Retorna um compromisso (mesmo deletado) por ID, independente do usuário.
+     * Lança ModelNotFoundException se não existir nem entre deletados.
      */
-    public function findByIdAsAdmin(int $id): Appointment
-    {
-        return Appointment::with('user', 'reminders')->findOrFail($id);
+public function findAsAdmin(int $id): Appointment
+{
+    $appointment = Appointment::withTrashed()
+        ->with('user', 'reminders')
+        ->find($id);
+
+    if (!$appointment) {
+        // Personaliza a mensagem ao invés da genérica "No query results for model..."
+        throw new ModelNotFoundException("O compromisso com ID {$id} não foi encontrado.");
     }
 
+    return $appointment;
+}
+
     /**
-     * [ADMIN] Lista todos os compromissos com filtros e paginação.
-     *
-     * @param mixed $filter Filtro a ser aplicado (AppointmentFilter).
-     * @param int $perPage Quantidade por página.
-     * @param bool $withRelations Indica se deve carregar os relacionamentos.
-     * @return LengthAwarePaginator
+     * [ADMIN] Atualiza os dados de um compromisso de qualquer usuário.
      */
-    public function getAllAsAdmin($filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
+    public function updateAsAdmin(int $id, array $data): Appointment
     {
-        $query = Appointment::filter($filter); // aplica filtros
+        $appointment = $this->findAsAdmin($id);
+        $appointment->update($data);
 
-        if ($withRelations) {
-            $query->with('user', 'reminders'); // carrega relacionamentos se solicitado
-        }
-
-        return $query->paginate($perPage);
+        return $appointment;
     }
 
     /**
      * [ADMIN] Deleta (soft delete) um compromisso de qualquer usuário.
-     *
-     * @param int $id ID do compromisso.
+     * Ignora se o compromisso já estiver deletado.
      */
     public function deleteAsAdmin(int $id): void
     {
-        $appointment = $this->findByIdAsAdmin($id);
+        $appointment = $this->findAsAdmin($id);
+
+        if ($appointment->trashed()) {
+            // já deletado, não faz nada
+            return;
+        }
+
         $appointment->delete();
+    }
+
+    /**
+     * [ADMIN] Lista todos os compromissos com filtros e paginação.
+     */
+    public function getAllAsAdmin($filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
+    {
+        $query = Appointment::filter($filter);
+
+        if ($withRelations) {
+            $query->with('user', 'reminders');
+        }
+
+        return $query->paginate($perPage);
     }
 }

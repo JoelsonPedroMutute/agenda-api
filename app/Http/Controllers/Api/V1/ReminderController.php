@@ -64,42 +64,36 @@ class ReminderController extends Controller
         $reminder = $user->role === 'admin'
             ? $this->service->createAdmin($request->validated())
             : $this->service->create($user->id, $request->validated());
-            $reminder->load('appointment.user');
 
+        $reminder->load('appointment.user');
 
         // Envio de SMS se o método for sms
-if ($reminder->method === 'message') {
-    $reminder->load('appointment.user');
+        if ($reminder->method === 'message') {
+            $appointment = $reminder->appointment;
+            $user = $appointment->user;
 
-    $appointment = $reminder->appointment;
-    $user = $appointment->user;
+            if ($user && $user->phone_number) {
+                $hora = Carbon::parse($appointment->date . ' ' . $appointment->start_time)->format('H:i');
+                $mensagem = "Lembrete: Você tem um compromisso agendado hoje às {$hora}. Não se atrase!";
 
-    if ($user && $user->phone_number) {
-        $hora = Carbon::parse($appointment->date . ' ' . $appointment->start_time)->format('H:i');
-        $mensagem = "Lembrete: Você tem um compromisso agendado hoje às {$hora}. Não se atrase!";
+                $smsResult = $this->sms->send($user->phone_number, $mensagem);
 
-        $smsResult = $this->sms->send($user->phone_number, $mensagem);
+                \Log::info('Resultado do envio de SMS', ['smsResult' => $smsResult]);
 
-        \Log::info('Resultado do envio de SMS', ['smsResult' => $smsResult]);
-
-        if ($smsResult && isset($smsResult['sid'], $smsResult['status'])) {
-            $reminder->update([
-                'message_status' => $smsResult['status'],
-                'message_sid'    => $smsResult['sid'],
-            ]);
-            $reminder->refresh(); // <-- Atualiza os dados antes de retornar
+                if ($smsResult && isset($smsResult['sid'], $smsResult['status'])) {
+                    $reminder->update([
+                        'message_status' => $smsResult['status'],
+                        'message_sid'    => $smsResult['sid'],
+                    ]);
+                    $reminder->refresh(); // Atualiza os dados antes de retornar
+                }
+            } else {
+                \Log::warning('Telefone do usuário não informado.', [
+                    'user_id' => $user->id ?? null,
+                    'appointment_id' => $appointment->id ?? null,
+                ]);
+            }
         }
-    } else {
-        \Log::warning('Telefone do usuário não informado.', [
-            'user_id' => $user->id ?? null,
-            'appointment_id' => $appointment->id ?? null,
-        ]);
-    }
-}
-
-
-
-
 
         return response()->json([
             'success' => true,
@@ -107,15 +101,24 @@ if ($reminder->method === 'message') {
             'data' => new ReminderResource($reminder),
         ], 201);
     }
+
     /**
      * Exibe um lembrete específico.
+     * Agora trata caso o lembrete não exista, com mensagem personalizada.
      */
     public function show($id)
     {
         $user = Auth::user();
         $reminder = $user->role === 'admin'
-            ? $this->service->findAdmin($id)
-            : $this->service->find($user->id, $id);
+            ? $this->service->findAdmin($id, false)
+            : $this->service->find($user->id, $id, false);
+
+        if (!$reminder) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lembrete não encontrado.',
+            ], 404);
+        }
 
         return response()->json([
             'success' => true,
@@ -126,27 +129,50 @@ if ($reminder->method === 'message') {
 
     /**
      * Atualiza os dados de um lembrete.
+     * Agora trata caso o lembrete não exista, com mensagem personalizada.
      */
     public function update(UpdateReminderRequest $request, $id)
     {
         $user = Auth::user();
         $reminder = $user->role === 'admin'
+            ? $this->service->findAdmin($id, false)
+            : $this->service->find($user->id, $id, false);
+
+        if (!$reminder) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lembrete não encontrado.',
+            ], 404);
+        }
+
+        $updatedReminder = $user->role === 'admin'
             ? $this->service->updateAdmin($id, $request->validated())
             : $this->service->update($user->id, $id, $request->validated());
 
         return response()->json([
             'success' => true,
             'message' => 'Lembrete atualizado com sucesso.',
-            'data' => new ReminderResource($reminder),
+            'data' => new ReminderResource($updatedReminder),
         ], 200);
     }
 
     /**
      * Exclui um lembrete.
+     * Agora trata caso o lembrete não exista, com mensagem personalizada.
      */
     public function destroy($id)
     {
         $user = Auth::user();
+        $reminder = $user->role === 'admin'
+            ? $this->service->findAdmin($id, false)
+            : $this->service->find($user->id, $id, false);
+
+        if (!$reminder) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Lembrete não encontrado.',
+            ], 404);
+        }
 
         $user->role === 'admin'
             ? $this->service->deleteAdmin($id)

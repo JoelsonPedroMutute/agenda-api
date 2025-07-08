@@ -29,12 +29,6 @@ class ReminderService
 
     /**
      * Recupera todos os lembretes pertencentes aos compromissos do usuário autenticado.
-     *
-     * @param int $userId ID do usuário autenticado.
-     * @param mixed $filter Instância do filtro ReminderFilter.
-     * @param int $perPage Paginação (itens por página).
-     * @param bool $withRelations Define se carrega ou não os relacionamentos.
-     * @return LengthAwarePaginator
      */
     public function getAll(int $userId, $filter, int $perPage = 10, bool $withRelations = true): LengthAwarePaginator
     {
@@ -51,11 +45,9 @@ class ReminderService
 
     /**
      * Cria um novo lembrete para um compromisso do usuário autenticado.
-     * Se o método for "message", envia uma mensagem com os dados do compromisso.
      */
     public function create(int $userId, array $data): Reminder
     {
-        // Busca o compromisso garantindo que pertence ao usuário autenticado
         $appointment = Appointment::where('id', $data['appointment_id'])
             ->where('user_id', $userId)
             ->firstOrFail();
@@ -70,17 +62,21 @@ class ReminderService
     }
 
     /**
-     * Recupera um lembrete por ID, desde que esteja vinculado a um compromisso do usuário autenticado.
+     * Recupera um lembrete do usuário autenticado.
+     *
+     * @param bool $fail Se true, lança exceção se não encontrado; se false, retorna null.
      */
-    public function find(int $userId, int $id): Reminder
+    public function find(int $userId, int $id, bool $fail = true): ?Reminder
     {
-        return Reminder::whereHas('appointment', function ($query) use ($userId) {
+        $query = Reminder::whereHas('appointment', function ($query) use ($userId) {
             $query->where('user_id', $userId);
-        })->findOrFail($id);
+        });
+
+        return $fail ? $query->findOrFail($id) : $query->find($id);
     }
 
     /**
-     * Atualiza um lembrete pertencente ao usuário autenticado.
+     * Atualiza um lembrete do usuário autenticado.
      */
     public function update(int $userId, int $id, array $data): Reminder
     {
@@ -119,7 +115,6 @@ class ReminderService
 
     /**
      * [ADMIN] Cria um lembrete para qualquer compromisso existente.
-     * Se o método for "message", envia uma mensagem com os dados do compromisso.
      */
     public function createAdmin(array $data): Reminder
     {
@@ -134,11 +129,15 @@ class ReminderService
     }
 
     /**
-     * [ADMIN] Recupera qualquer lembrete pelo ID com relacionamentos.
+     * [ADMIN] Recupera qualquer lembrete pelo ID.
+     *
+     * @param bool $fail Se true, lança exceção se não encontrado; se false, retorna null.
      */
-    public function findAdmin(int $id): Reminder
+    public function findAdmin(int $id, bool $fail = true): ?Reminder
     {
-        return Reminder::with('appointment.user')->findOrFail($id);
+        return $fail
+            ? Reminder::with('appointment.user')->findOrFail($id)
+            : Reminder::with('appointment.user')->find($id);
     }
 
     /**
@@ -163,13 +162,9 @@ class ReminderService
 
     /**
      * Envia um SMS com base no compromisso vinculado ao lembrete.
-     *
-     * @param Appointment $appointment Compromisso vinculado.
-     * @param Reminder $reminder Lembrete recém-criado.
      */
     private function enviarSms(Appointment $appointment, Reminder $reminder): void
     {
-        // Garante que o relacionamento 'user' está carregado
         $appointment->loadMissing('user');
 
         if (!$appointment->user || !$appointment->user->phone_number) {
@@ -181,10 +176,9 @@ class ReminderService
 
         $response = $this->sms->send($appointment->user->phone_number, $mensagem);
 
-        // Atualiza o lembrete com status e sid da Twilio
         $reminder->update([
             'message_status' => $response['status'] ?? null,
-            'message_sid' => $response['sid'] ?? null,
+            'message_sid'    => $response['sid'] ?? null,
         ]);
     }
 }

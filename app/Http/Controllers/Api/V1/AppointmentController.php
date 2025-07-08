@@ -21,7 +21,7 @@ class AppointmentController extends Controller
     protected AppointmentService $service;
 
     /**
-     * Injeta o serviço e aplica o middleware de autenticação.
+     * Injeta o serviço de compromissos e aplica o middleware de autenticação Sanctum.
      */
     public function __construct(AppointmentService $service)
     {
@@ -31,8 +31,8 @@ class AppointmentController extends Controller
 
     /**
      * Lista compromissos com paginação e filtros dinâmicos.
-     * Admin vê todos, usuários comuns apenas os próprios.
-     * Pode incluir ou não os relacionamentos via query: ?with_relations=false
+     * Admin vê todos os compromissos; usuários comuns apenas os próprios.
+     * É possível incluir ou não os relacionamentos com ?with_relations=true|false
      */
     public function index(Request $request)
     {
@@ -70,17 +70,20 @@ class AppointmentController extends Controller
 
     /**
      * Cria um novo compromisso.
+     * Usuários comuns criam compromissos apenas para si.
+     * Admin pode incluir o user_id no payload.
      */
     public function store(StoreAppointmentRequest $request)
     {
         $user = Auth::user();
         $data = $request->validated();
 
+        // Se não for admin, força o user_id com base no usuário autenticado
         if ($user->role !== 'admin') {
             $data['user_id'] = $user->id;
         }
 
-        $appointment = $this->service->create(Auth::id(), $data);
+        $appointment = $this->service->create($user->id, $data);
 
         return response()->json([
             'success' => true,
@@ -91,10 +94,15 @@ class AppointmentController extends Controller
 
     /**
      * Exibe um compromisso específico.
+     * Admin pode visualizar qualquer compromisso; usuários apenas os próprios.
      */
     public function show($id)
     {
-        $appointment = $this->service->find(Auth::id(), $id);
+        $user = Auth::user();
+
+        $appointment = $user->role === 'admin'
+            ? $this->service->findAsAdmin($id)
+            : $this->service->find($user->id, $id);
 
         return response()->json([
             'success' => true,
@@ -105,10 +113,15 @@ class AppointmentController extends Controller
 
     /**
      * Atualiza um compromisso existente.
+     * Admin pode atualizar qualquer compromisso; usuários apenas os próprios.
      */
     public function update(UpdateAppointmentRequest $request, $id)
     {
-        $appointment = $this->service->update(Auth::id(), $id, $request->validated());
+        $user = Auth::user();
+
+        $appointment = $user->role === 'admin'
+            ? $this->service->updateAsAdmin($id, $request->validated())
+            : $this->service->update($user->id, $id, $request->validated());
 
         return response()->json([
             'success' => true,
@@ -118,11 +131,18 @@ class AppointmentController extends Controller
     }
 
     /**
-     * Remove um compromisso (soft delete).
+     * Remove (soft delete) um compromisso.
+     * Admin pode deletar qualquer compromisso; usuários apenas os próprios.
      */
     public function destroy($id)
     {
-        $this->service->delete(Auth::id(), $id);
+        $user = Auth::user();
+
+        if ($user->role === 'admin') {
+            $this->service->deleteAsAdmin($id);
+        } else {
+            $this->service->delete($user->id, $id);
+        }
 
         return response()->json([
             'success' => true,
