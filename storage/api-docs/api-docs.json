@@ -2,289 +2,45 @@
     "openapi": "3.0.0",
     "info": {
         "title": "Agenda API",
-        "description": "Documentação da API de agendamentos e lembretes",
-        "version": "1.0"
+        "description": "Documentação da API de Agendamentos",
+        "version": "1.0.0"
     },
     "servers": [
         {
-            "url": "http://agenda-api.test",
-            "description": "Servidor local de desenvolvimento"
+            "url": "http://agenda_api.test",
+            "description": "Servidor local"
         }
     ],
     "paths": {
-        "/api/v1/admin/appointments": {
+        "/api/v1/reminders": {
             "get": {
                 "tags": [
-                    "Admin - Appointments"
+                    "Lembretes"
                 ],
-                "summary": "Listar todos os agendamentos (admin)",
-                "operationId": "db4b1482a260bdba5ffb92eb74bb1931",
-                "responses": {
-                    "200": {
-                        "description": "Lista de agendamentos",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/AppointmentAdmin"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Admin - Appointments"
-                ],
-                "summary": "Criar agendamento (admin)",
-                "operationId": "ea9465b666898ad4d329aa1901b3fc8a",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "user_id",
-                                    "title",
-                                    "date",
-                                    "start_time",
-                                    "end_time"
-                                ],
-                                "properties": {
-                                    "user_id": {
-                                        "type": "integer",
-                                        "example": 2
-                                    },
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Consulta de rotina"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Descrição opcional do agendamento"
-                                    },
-                                    "date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2025-07-02"
-                                    },
-                                    "start_time": {
-                                        "type": "string",
-                                        "example": "09:00"
-                                    },
-                                    "end_time": {
-                                        "type": "string",
-                                        "example": "10:00"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Agendamento criado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AppointmentAdmin"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/admin/appointments/{id}": {
-            "get": {
-                "tags": [
-                    "Admin - Appointments"
-                ],
-                "summary": "Ver agendamento específico (admin)",
-                "operationId": "c9d8a8a15f7fe7089136685b8c83b769",
+                "summary": "Listar lembretes (usuário autenticado ou admin)",
+                "operationId": "1b50de00b46c05a316dc0bc30efff007",
                 "parameters": [
                     {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do agendamento",
-                        "required": true,
+                        "name": "with_relations",
+                        "in": "query",
+                        "description": "Se true, carrega os relacionamentos (appointment e user)",
+                        "required": false,
                         "schema": {
-                            "type": "integer"
+                            "type": "boolean",
+                            "default": true
                         }
                     }
                 ],
-                "responses": {
-                    "200": {
-                        "description": "Agendamento encontrado",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AppointmentAdmin"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Admin - Appointments"
-                ],
-                "summary": "Atualizar agendamento (admin)",
-                "operationId": "a217f923d94b50a9a45e02961993fac2",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do agendamento",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "title": {
-                                        "type": "string",
-                                        "example": "Consulta médica atualizada"
-                                    },
-                                    "description": {
-                                        "type": "string",
-                                        "example": "Descrição atualizada"
-                                    },
-                                    "date": {
-                                        "type": "string",
-                                        "format": "date",
-                                        "example": "2025-07-02"
-                                    },
-                                    "start_time": {
-                                        "type": "string",
-                                        "example": "10:00"
-                                    },
-                                    "end_time": {
-                                        "type": "string",
-                                        "example": "11:00"
-                                    },
-                                    "status": {
-                                        "type": "string",
-                                        "example": "concluído"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Agendamento atualizado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AppointmentAdmin"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Admin - Appointments"
-                ],
-                "summary": "Deletar agendamento (admin)",
-                "operationId": "829988918e26f8ed7a1cfb792cc8badd",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do agendamento",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Agendamento deletado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Appointment deletado com sucesso"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/admin/reminders": {
-            "get": {
-                "tags": [
-                    "Admin - Reminders"
-                ],
-                "summary": "Listar todos os lembretes (admin)",
-                "operationId": "b86f61dc5694857522b496a466bfe933",
                 "responses": {
                     "200": {
                         "description": "Lista de lembretes",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/ReminderAdmin"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/ReminderWithRelations"
+                                    }
                                 }
                             }
                         }
@@ -292,50 +48,18 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
             "post": {
                 "tags": [
-                    "Admin - Reminders"
+                    "Lembretes"
                 ],
-                "summary": "Criar lembrete (admin)",
-                "operationId": "1ed6f3c6ab030b21893447c10093694f",
+                "summary": "Criar um novo lembrete",
+                "operationId": "ed17d327d8013eaaef6af2390c85b5c3",
                 "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "appointment_id",
-                                    "remind_at",
-                                    "method"
-                                ],
-                                "properties": {
-                                    "appointment_id": {
-                                        "type": "integer",
-                                        "example": 1
-                                    },
-                                    "remind_at": {
-                                        "type": "string",
-                                        "format": "date-time",
-                                        "example": "2025-07-01T09:00:00"
-                                    },
-                                    "method": {
-                                        "type": "string",
-                                        "enum": [
-                                            "email",
-                                            "sms",
-                                            "notificação"
-                                        ],
-                                        "example": "email"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
+                    "$ref": "#/components/requestBodies/StoreReminderRequest"
                 },
                 "responses": {
                     "201": {
@@ -343,7 +67,7 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ReminderAdmin"
+                                    "$ref": "#/components/schemas/ReminderWithRelations"
                                 }
                             }
                         }
@@ -351,23 +75,22 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
         },
-        "/api/v1/admin/reminders/{id}": {
+        "/api/v1/reminders/{id}": {
             "get": {
                 "tags": [
-                    "Admin - Reminders"
+                    "Lembretes"
                 ],
-                "summary": "Ver lembrete específico (admin)",
-                "operationId": "4b8edb72ed1fba3b3dce1ba6d85182ac",
+                "summary": "Exibir um lembrete específico",
+                "operationId": "3a5af17840f7453f1fed2fbcb784bd35",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID do lembrete",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -380,29 +103,31 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ReminderAdmin"
+                                    "$ref": "#/components/schemas/ReminderWithRelations"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Lembrete não encontrado"
                     }
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
             "put": {
                 "tags": [
-                    "Admin - Reminders"
+                    "Lembretes"
                 ],
-                "summary": "Atualizar lembrete (admin)",
-                "operationId": "4f9353ecf63ca19841db03cfc4d7e61a",
+                "summary": "Atualizar um lembrete",
+                "operationId": "c3438fabd982cc0e1b5cfdf4f344b484",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID do lembrete",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -410,28 +135,7 @@
                     }
                 ],
                 "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "message": {
-                                        "type": "string",
-                                        "example": "Nova mensagem de lembrete"
-                                    },
-                                    "method": {
-                                        "type": "string",
-                                        "example": "email"
-                                    },
-                                    "notification_time": {
-                                        "type": "string",
-                                        "format": "date-time",
-                                        "example": "2025-07-01T08:00:00"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
+                    "$ref": "#/components/requestBodies/UpdateReminderRequest"
                 },
                 "responses": {
                     "200": {
@@ -439,660 +143,31 @@
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "$ref": "#/components/schemas/ReminderAdmin"
+                                    "$ref": "#/components/schemas/ReminderWithRelations"
                                 }
                             }
                         }
+                    },
+                    "404": {
+                        "description": "Lembrete não encontrado"
                     }
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
             "delete": {
                 "tags": [
-                    "Admin - Reminders"
+                    "Lembretes"
                 ],
-                "summary": "Deletar lembrete (admin)",
-                "operationId": "853ec5c7187e472b5520ecf99e7a99a9",
+                "summary": "Excluir um lembrete",
+                "operationId": "527378feac0509f08027f440c8ca1007",
                 "parameters": [
                     {
                         "name": "id",
                         "in": "path",
-                        "description": "ID do lembrete",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lembrete deletado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Reminder deletado com sucesso"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/admin/users": {
-            "get": {
-                "tags": [
-                    "Admin - Users"
-                ],
-                "summary": "Listar todos os usuários (admin)",
-                "operationId": "437ceb23d67b89b680b3e7054665aa3a",
-                "responses": {
-                    "200": {
-                        "description": "Lista de usuários",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "data": {
-                                            "type": "array",
-                                            "items": {
-                                                "$ref": "#/components/schemas/UserAdmin"
-                                            }
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Admin - Users"
-                ],
-                "summary": "Criar novo usuário (admin)",
-                "operationId": "ce7d1444183da354826b4c7cdec1bd59",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "required": [
-                                    "name",
-                                    "email",
-                                    "password"
-                                ],
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Joelson Admin"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "admin.joelson@example.com"
-                                    },
-                                    "password": {
-                                        "type": "string",
-                                        "format": "password",
-                                        "example": "senha123"
-                                    },
-                                    "role": {
-                                        "type": "string",
-                                        "enum": [
-                                            "user",
-                                            "admin"
-                                        ],
-                                        "example": "admin"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Usuário criado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserAdmin"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/admin/users/{id}": {
-            "get": {
-                "tags": [
-                    "Admin - Users"
-                ],
-                "summary": "Ver usuário específico (admin)",
-                "operationId": "3a8e270670ad944902de23d87825cc8f",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do usuário",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Usuário encontrado",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserAdmin"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Admin - Users"
-                ],
-                "summary": "Atualizar dados do usuário (admin)",
-                "operationId": "e1bc70f80ef0f652b15327a77fb43069",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do usuário",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "properties": {
-                                    "name": {
-                                        "type": "string",
-                                        "example": "Joelson Atualizado"
-                                    },
-                                    "email": {
-                                        "type": "string",
-                                        "format": "email",
-                                        "example": "novo.email@example.com"
-                                    },
-                                    "role": {
-                                        "type": "string",
-                                        "enum": [
-                                            "user",
-                                            "admin"
-                                        ],
-                                        "example": "admin"
-                                    }
-                                },
-                                "type": "object"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Usuário atualizado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/UserAdmin"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Admin - Users"
-                ],
-                "summary": "Deletar usuário (admin)",
-                "operationId": "29b8c7b44aba30e142421f4731def390",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do usuário",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Usuário deletado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Usuário deletado com sucesso."
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/appointments": {
-            "get": {
-                "tags": [
-                    "Appointments"
-                ],
-                "summary": "Listar todos os compromissos paginados do usuário autenticado",
-                "operationId": "b827cd052bc10ca91a7753a2c98c95c8",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Quantidade de resultados por página",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "example": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de compromissos retornada com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "success": {
-                                            "type": "boolean",
-                                            "example": true
-                                        },
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Lista de compromissos recuperada com sucesso."
-                                        },
-                                        "data": {
-                                            "type": "object"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Appointments"
-                ],
-                "summary": "Criar um novo compromisso",
-                "operationId": "48a846f3ad34419db2fd16184dfbb330",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreAppointmentRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Compromisso criado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AppointmentResource"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/appointments/{id}": {
-            "get": {
-                "tags": [
-                    "Appointments"
-                ],
-                "summary": "Exibir um compromisso específico",
-                "operationId": "19c3861848d29c8e408e94bb84dea1f7",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do compromisso",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Compromisso encontrado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AppointmentResource"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Appointments"
-                ],
-                "summary": "Atualizar um compromisso",
-                "operationId": "0eed29492f9cb57edc5953fc9da63637",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do compromisso",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateAppointmentRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Compromisso atualizado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/AppointmentResource"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Appointments"
-                ],
-                "summary": "Excluir um compromisso",
-                "operationId": "5043f7d38fe8e91347d7fbfaf1bfd532",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do compromisso",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "Compromisso excluído com sucesso"
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/reminders": {
-            "get": {
-                "tags": [
-                    "Reminders"
-                ],
-                "summary": "Listar todos os lembretes do usuário autenticado",
-                "operationId": "ac26ac2ad062912d8d4f74dd2cd64704",
-                "parameters": [
-                    {
-                        "name": "per_page",
-                        "in": "query",
-                        "description": "Quantidade de lembretes por página",
-                        "required": false,
-                        "schema": {
-                            "type": "integer",
-                            "default": 10
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Lista de lembretes",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "type": "array",
-                                    "items": {
-                                        "$ref": "#/components/schemas/ReminderResource"
-                                    }
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "post": {
-                "tags": [
-                    "Reminders"
-                ],
-                "summary": "Criar um novo lembrete",
-                "operationId": "1b0c7dc52c3c59b0d7d16abb5baf2688",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreReminderRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "201": {
-                        "description": "Lembrete criado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReminderResource"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/reminders/{id}": {
-            "get": {
-                "tags": [
-                    "Reminders"
-                ],
-                "summary": "Visualizar um lembrete específico",
-                "operationId": "95740e8f1b35d8d18a93555f0466aada",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do lembrete",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "responses": {
-                    "200": {
-                        "description": "Detalhes do lembrete",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReminderResource"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "put": {
-                "tags": [
-                    "Reminders"
-                ],
-                "summary": "Atualizar um lembrete existente",
-                "operationId": "bec0a9feb2b9a7c09c74177876e1a7f0",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do lembrete",
-                        "required": true,
-                        "schema": {
-                            "type": "integer"
-                        }
-                    }
-                ],
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/StoreReminderRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Lembrete atualizado",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "$ref": "#/components/schemas/ReminderResource"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            },
-            "delete": {
-                "tags": [
-                    "Reminders"
-                ],
-                "summary": "Remover um lembrete",
-                "operationId": "cd450624baff8123ac5085947e880d49",
-                "parameters": [
-                    {
-                        "name": "id",
-                        "in": "path",
-                        "description": "ID do lembrete",
                         "required": true,
                         "schema": {
                             "type": "integer"
@@ -1102,11 +177,14 @@
                 "responses": {
                     "204": {
                         "description": "Lembrete excluído com sucesso"
+                    },
+                    "404": {
+                        "description": "Lembrete não encontrado"
                     }
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -1114,14 +192,40 @@
         "/api/v1/user": {
             "get": {
                 "tags": [
-                    "User"
+                    "Usuário"
                 ],
-                "summary": "Detalhes do usuário autenticado",
-                "description": "Retorna os dados do usuário logado, incluindo agendamentos e lembretes.",
-                "operationId": "8d11e10a249849c3fd83d513350c8211",
+                "summary": "Retorna os dados do usuário autenticado",
+                "operationId": "57d1f0ad6d843d550658908a893a453b",
                 "responses": {
                     "200": {
-                        "description": "Dados do usuário",
+                        "description": "Usuário autenticado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserWithRelations"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Atualiza dados pessoais do usuário autenticado",
+                "operationId": "0c3d04877a25dab1a106388d2388b1c1",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/UpdateUserRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Dados atualizados",
                         "content": {
                             "application/json": {
                                 "schema": {
@@ -1133,99 +237,43 @@
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
                     }
                 ]
             },
-            "put": {
-                "tags": [
-                    "User"
-                ],
-                "summary": "Atualizar dados do usuário",
-                "description": "Atualiza nome, email ou outras informações permitidas do usuário autenticado.",
-                "operationId": "e6547b0afe34b1feeb750fa95ac7c1c9",
-                "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/UpdateUserRequest"
-                            }
-                        }
-                    }
-                },
-                "responses": {
-                    "200": {
-                        "description": "Usuário atualizado com sucesso",
-                        "content": {
-                            "application/json": {
-                                "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Dados atualizados com cusesso."
-                                        },
-                                        "user": {
-                                            "$ref": "#/components/schemas/User"
-                                        }
-                                    },
-                                    "type": "object"
-                                }
-                            }
-                        }
-                    }
-                },
-                "security": [
-                    {
-                        "sanctum": []
-                    }
-                ]
-            }
-        },
-        "/api/v1/user/change-password": {
             "post": {
                 "tags": [
-                    "User"
+                    "Usuário"
                 ],
-                "summary": "Alterar senha do usuário",
-                "description": "Permite que o usuário autenticado altere sua senha.",
-                "operationId": "c1b5dfdec9be85b37ee229ab91c76e62",
+                "summary": "Registrar novo usuário",
+                "description": "Cria um novo usuário com os dados fornecidos.",
+                "operationId": "520cacece46eff969a49de6f1c107a54",
                 "requestBody": {
-                    "required": true,
-                    "content": {
-                        "application/json": {
-                            "schema": {
-                                "$ref": "#/components/schemas/ChangePasswordRequest"
-                            }
-                        }
-                    }
+                    "$ref": "#/components/requestBodies/StoreUserRequest"
                 },
                 "responses": {
-                    "200": {
-                        "description": "Senha alterada com sucesso",
+                    "201": {
+                        "description": "Usuário criado com sucesso",
                         "content": {
                             "application/json": {
                                 "schema": {
-                                    "properties": {
-                                        "message": {
-                                            "type": "string",
-                                            "example": "Senha alterada com sucesso."
-                                        }
-                                    },
-                                    "type": "object"
+                                    "$ref": "#/components/schemas/User"
                                 }
                             }
                         }
                     },
                     "422": {
-                        "description": "Senha atual incorreta",
+                        "description": "Erro de validação nos dados fornecidos",
                         "content": {
                             "application/json": {
                                 "schema": {
                                     "properties": {
                                         "message": {
                                             "type": "string",
-                                            "example": "Senha atual incorreta."
+                                            "example": "O campo email já está em uso."
+                                        },
+                                        "errors": {
+                                            "type": "object"
                                         }
                                     },
                                     "type": "object"
@@ -1233,10 +281,257 @@
                             }
                         }
                     }
+                }
+            },
+            "delete": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Excluir a própria conta (soft delete)",
+                "operationId": "321957f240e6e9ad76e18670ddf2bb5d",
+                "responses": {
+                    "204": {
+                        "description": "Conta deletada com sucesso"
+                    }
                 },
                 "security": [
                     {
-                        "sanctum": []
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/user/password": {
+            "put": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Alterar senha do usuário autenticado",
+                "operationId": "9a4946e98bf2cbab83e0295658920ea1",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/ChangePasswordRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Senha alterada com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users": {
+            "get": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Listar todos os usuários (apenas admin)",
+                "description": "Utilize o parâmetro `with_relations=true` para incluir relacionamentos como appointments e reminders.",
+                "operationId": "f91d86086ec026e84fe1f6eef8a0b096",
+                "parameters": [
+                    {
+                        "name": "with_relations",
+                        "in": "query",
+                        "description": "Se true, inclui os relacionamentos appointments e reminders",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de usuários",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "$ref": "#/components/schemas/UserWithRelations"
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Criar um novo usuário (admin)",
+                "operationId": "14a5ea2e2caa55a56f1876406177b875",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/StoreUserRequest"
+                },
+                "responses": {
+                    "201": {
+                        "description": "Usuário criado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users/{id}": {
+            "get": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Obter detalhes de um usuário (admin)",
+                "operationId": "22bb7b14198d48c048066392bf995a6e",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "with_relations",
+                        "in": "query",
+                        "description": "Se true, inclui os relacionamentos appointments e reminders",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/UserWithRelations"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Atualizar usuário (admin)",
+                "operationId": "b38f04b55adc003bacc7de888c3ec4da",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/UpdateUserRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Usuário atualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Excluir usuário (admin)",
+                "operationId": "27fec5b2b17f26ae283fb0cf343b99f3",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Usuário deletado com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/admin/users/{id}/restore": {
+            "patch": {
+                "tags": [
+                    "Usuário"
+                ],
+                "summary": "Restaurar usuário deletado (admin)",
+                "operationId": "d24859ddcabbba3f88fe266411f1aef1",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Usuário restaurado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/User"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
                     }
                 ]
             }
@@ -1244,8 +539,9 @@
     },
     "components": {
         "schemas": {
-            "AppointmentAdmin": {
-                "title": "Agendamento (Admin)",
+            "Appointment": {
+                "title": "Appointment",
+                "description": "Agendamento do usuário",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -1253,210 +549,27 @@
                     },
                     "title": {
                         "type": "string",
-                        "example": "Consulta Médica"
+                        "example": "Consulta médica"
                     },
-                    "description": {
+                    "datetime": {
                         "type": "string",
-                        "example": "Agendamento com o clínico geral."
-                    },
-                    "date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2025-07-01"
-                    },
-                    "start_time": {
-                        "type": "string",
-                        "example": "14:00"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "example": "15:00"
+                        "format": "date-time",
+                        "example": "2025-08-20T14:30:00Z"
                     },
                     "status": {
                         "type": "string",
                         "example": "pendente"
-                    },
-                    "reminders": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/ReminderAdmin"
-                        }
-                    },
-                    "user": {
-                        "$ref": "#/components/schemas/UserAdmin"
-                    }
-                },
-                "type": "object"
-            },
-            "StoreAppointmentRequest": {
-                "required": [
-                    "title",
-                    "description",
-                    "date",
-                    "start_time",
-                    "end_time"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "example": "Reunião de planejamento"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "Reunião com a equipe para discutir o próximo sprint."
-                    },
-                    "date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2025-07-01"
-                    },
-                    "start_time": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "09:00"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "10:30"
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "pendente"
-                    }
-                },
-                "type": "object"
-            },
-            "UpdateAppointmentRequest": {
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "example": "Reunião atualizada"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "Descrição atualizada."
-                    },
-                    "date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2025-07-01"
-                    },
-                    "start_time": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "14:00"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "15:30"
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "concluído"
-                    }
-                },
-                "type": "object"
-            },
-            "AppointmentResource": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
                     },
                     "user_id": {
                         "type": "integer",
-                        "example": 1
-                    },
-                    "title": {
-                        "type": "string",
-                        "example": "Reunião de planejamento"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "Reunião com a equipe"
-                    },
-                    "date": {
-                        "type": "string",
-                        "format": "date",
-                        "example": "2025-07-01"
-                    },
-                    "start_time": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "09:00"
-                    },
-                    "end_time": {
-                        "type": "string",
-                        "format": "time",
-                        "example": "10:00"
-                    },
-                    "status": {
-                        "type": "string",
-                        "example": "pendente"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-06-25T10:00:00Z"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-06-25T10:00:00Z"
+                        "example": 5
                     }
                 },
                 "type": "object"
             },
-            "ChangePasswordRequest": {
-                "required": [
-                    "current_password",
-                    "new_password"
-                ],
-                "properties": {
-                    "current_password": {
-                        "type": "string",
-                        "example": "senha_antiga123"
-                    },
-                    "new_password": {
-                        "type": "string",
-                        "example": "novaSenhaSegura456"
-                    }
-                },
-                "type": "object"
-            },
-            "ReminderAdmin": {
-                "title": "Lembrete (Admin)",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "remind_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-07-01T08:00:00Z"
-                    },
-                    "method": {
-                        "type": "string",
-                        "example": "email"
-                    },
-                    "message": {
-                        "type": "string",
-                        "example": "Não se esqueça da consulta médica."
-                    },
-                    "notification_time": {
-                        "type": "string",
-                        "example": "2025-07-01T07:30:00Z"
-                    },
-                    "appointment": {
-                        "$ref": "#/components/schemas/AppointmentAdmin"
-                    }
-                },
-                "type": "object"
-            },
-            "ReminderResource": {
+            "Reminder": {
+                "title": "Reminder",
+                "description": "Lembrete sem relacionamentos",
                 "properties": {
                     "id": {
                         "type": "integer",
@@ -1464,146 +577,100 @@
                     },
                     "appointment_id": {
                         "type": "integer",
-                        "example": 3
+                        "example": 12
                     },
-                    "title": {
-                        "type": "string",
-                        "example": "Tomar medicamento"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "Tomar remédio para dor"
-                    },
-                    "reminder_time": {
+                    "remind_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-07-01T16:00:00Z"
+                        "example": "2025-07-15T09:00:00Z"
+                    },
+                    "method": {
+                        "type": "string",
+                        "enum": [
+                            "email",
+                            "message",
+                            "notification"
+                        ],
+                        "example": "email"
+                    },
+                    "message_status": {
+                        "type": "string",
+                        "example": "sent",
+                        "nullable": true
+                    },
+                    "message_sid": {
+                        "type": "string",
+                        "example": "SM123456789",
+                        "nullable": true
                     },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-06-25T10:00:00Z"
+                        "example": "2025-07-10T12:34:56Z"
                     },
                     "updated_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-06-25T10:00:00Z"
+                        "example": "2025-07-10T13:45:00Z"
                     }
                 },
                 "type": "object"
             },
-            "StoreReminderRequest": {
-                "required": [
-                    "title",
-                    "description",
-                    "reminder_time"
-                ],
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "example": "Tomar medicamento"
+            "ReminderWithRelations": {
+                "title": "ReminderWithRelations",
+                "description": "Lembrete com relacionamentos (compromisso e usuário)",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Reminder"
                     },
-                    "description": {
-                        "type": "string",
-                        "example": "Tomar remédio para dor às 16h"
-                    },
-                    "reminder_time": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-07-01T16:00:00Z"
+                    {
+                        "properties": {
+                            "appointment": {
+                                "properties": {
+                                    "id": {
+                                        "type": "integer",
+                                        "example": 12
+                                    },
+                                    "title": {
+                                        "type": "string",
+                                        "example": "Consulta médica"
+                                    },
+                                    "date": {
+                                        "type": "string",
+                                        "example": "2025-07-15"
+                                    },
+                                    "start_time": {
+                                        "type": "string",
+                                        "example": "09:00"
+                                    },
+                                    "user": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "integer",
+                                                "example": 4
+                                            },
+                                            "name": {
+                                                "type": "string",
+                                                "example": "Joana Silva"
+                                            },
+                                            "email": {
+                                                "type": "string",
+                                                "example": "joana@email.com"
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                },
+                                "type": "object"
+                            }
+                        },
+                        "type": "object"
                     }
-                },
-                "type": "object"
-            },
-            "UpdateReminderRequest": {
-                "properties": {
-                    "title": {
-                        "type": "string",
-                        "example": "Tomar vitamina"
-                    },
-                    "description": {
-                        "type": "string",
-                        "example": "Vitamina C às 17h"
-                    },
-                    "reminder_time": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-07-01T17:00:00Z"
-                    }
-                },
-                "type": "object"
-            },
-            "UpdateUserRequest": {
-                "properties": {
-                    "name": {
-                        "type": "string",
-                        "example": "Joelson Mutute"
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "example": "joelson@example.com"
-                    }
-                },
-                "type": "object"
-            },
-            "UserAdmin": {
-                "title": "Usuário (Admin)",
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Joelson Admin"
-                    },
-                    "email": {
-                        "type": "string",
-                        "example": "admin@example.com"
-                    },
-                    "role": {
-                        "type": "string",
-                        "example": "admin"
-                    },
-                    "appointments": {
-                        "type": "array",
-                        "items": {
-                            "$ref": "#/components/schemas/AppointmentAdmin"
-                        }
-                    }
-                },
-                "type": "object"
-            },
-            "UserResource": {
-                "properties": {
-                    "id": {
-                        "type": "integer",
-                        "example": 1
-                    },
-                    "name": {
-                        "type": "string",
-                        "example": "Joelson Mutute"
-                    },
-                    "email": {
-                        "type": "string",
-                        "format": "email",
-                        "example": "joelson@example.com"
-                    },
-                    "created_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-06-01T10:00:00Z"
-                    },
-                    "updated_at": {
-                        "type": "string",
-                        "format": "date-time",
-                        "example": "2025-06-20T15:45:00Z"
-                    }
-                },
-                "type": "object"
+                ]
             },
             "User": {
+                "title": "Usuário",
+                "description": "Informações básicas de um usuário",
                 "required": [
                     "id",
                     "name",
@@ -1616,66 +683,243 @@
                     },
                     "name": {
                         "type": "string",
-                        "example": "Joelson Mutute"
+                        "example": "João Silva"
                     },
                     "email": {
                         "type": "string",
-                        "format": "email",
-                        "example": "joelson@example.com"
+                        "example": "joao@email.com"
                     },
-                    "email_verified_at": {
+                    "role": {
                         "type": "string",
-                        "format": "date-time",
-                        "example": "2025-06-01T12:00:00Z",
-                        "nullable": true
+                        "example": "user"
                     },
                     "created_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-06-20T10:00:00Z"
+                        "example": "2024-07-01T14:35:00Z"
                     },
                     "updated_at": {
                         "type": "string",
                         "format": "date-time",
-                        "example": "2025-06-22T15:30:00Z"
+                        "example": "2024-07-10T10:20:00Z"
                     }
                 },
                 "type": "object"
+            },
+            "UserWithRelations": {
+                "title": "Usuário com relacionamentos",
+                "description": "Informações completas de um usuário, incluindo relacionamentos",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    {
+                        "properties": {
+                            "appointments": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            },
+                            "reminders": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Reminder"
+                                }
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
             }
         },
-        "securitySchemes": {
-            "sanctum": {
-                "type": "http",
-                "description": "Insira o token de autenticação Bearer aqui",
-                "bearerFormat": "JWT",
-                "scheme": "bearer"
+        "requestBodies": {
+            "ChangePasswordRequest": {
+                "description": "Requisição para alteração de senha do usuário autenticado",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "current_password",
+                                "new_password",
+                                "new_password_confirmation"
+                            ],
+                            "properties": {
+                                "current_password": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "senhaAtual123"
+                                },
+                                "new_password": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "novaSenha123"
+                                },
+                                "new_password_confirmation": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "novaSenha123"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "StoreReminderRequest": {
+                "description": "Dados para criar um novo lembrete",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "appointment_id",
+                                "remind_at",
+                                "method"
+                            ],
+                            "properties": {
+                                "appointment_id": {
+                                    "type": "integer",
+                                    "example": 5
+                                },
+                                "remind_at": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2025-07-15T09:00:00Z"
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "enum": [
+                                        "email",
+                                        "message",
+                                        "notification"
+                                    ],
+                                    "example": "email"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "StoreUserRequest": {
+                "description": "Dados necessários para criação de um novo usuário (admin)",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "name",
+                                "email",
+                                "password",
+                                "password_confirmation"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "Maria Silva"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "example": "maria@email.com"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "12345678"
+                                },
+                                "password_confirmation": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "12345678"
+                                },
+                                "role": {
+                                    "type": "string",
+                                    "enum": [
+                                        "user",
+                                        "admin"
+                                    ],
+                                    "example": "user"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "UpdateReminderRequest": {
+                "description": "Dados para atualizar um lembrete (envie apenas os campos que deseja alterar)",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "appointment_id": {
+                                    "type": "integer",
+                                    "example": 3
+                                },
+                                "remind_at": {
+                                    "type": "string",
+                                    "format": "date-time",
+                                    "example": "2025-07-20T14:30:00Z"
+                                },
+                                "method": {
+                                    "type": "string",
+                                    "enum": [
+                                        "email",
+                                        "message",
+                                        "notification"
+                                    ],
+                                    "example": "notification"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
+            "UpdateUserRequest": {
+                "description": "Dados para atualizar as informações do usuário. Todos os campos são opcionais, mas pelo menos um deve estar presente.",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "example": "João Atualizado"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "example": "joao@atualizado.com"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "novasenha123"
+                                },
+                                "password_confirmation": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "novasenha123"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
             }
         }
     },
     "tags": [
         {
-            "name": "Reminders",
-            "description": "Operações relacionadas a lembretes"
+            "name": "Lembretes",
+            "description": "Gerenciamento de lembretes de compromissos"
         },
         {
-            "name": "User",
-            "description": "Operações relacionadas ao usuário autenticado"
-        },
-        {
-            "name": "Admin - Appointments",
-            "description": "Admin - Appointments"
-        },
-        {
-            "name": "Admin - Reminders",
-            "description": "Admin - Reminders"
-        },
-        {
-            "name": "Admin - Users",
-            "description": "Admin - Users"
-        },
-        {
-            "name": "Appointments",
-            "description": "Appointments"
+            "name": "Usuário",
+            "description": "Operações relacionadas ao usuário autenticado e administrador"
         }
     ]
 }
