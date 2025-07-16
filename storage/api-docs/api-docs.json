@@ -12,6 +12,205 @@
         }
     ],
     "paths": {
+        "/api/v1/appointments": {
+            "get": {
+                "tags": [
+                    "Compromissos"
+                ],
+                "summary": "Listar compromissos (com filtros e paginação)",
+                "operationId": "29e7755f730072b0149cbb8ac3845d93",
+                "parameters": [
+                    {
+                        "name": "per_page",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    },
+                    {
+                        "name": "with_relations",
+                        "in": "query",
+                        "required": false,
+                        "schema": {
+                            "type": "boolean"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Lista de compromissos",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "success": {
+                                            "type": "boolean",
+                                            "example": true
+                                        },
+                                        "status": {
+                                            "type": "integer",
+                                            "example": 200
+                                        },
+                                        "message": {
+                                            "type": "string",
+                                            "example": "Lista de compromissos recuperada com sucesso."
+                                        },
+                                        "data": {
+                                            "properties": {
+                                                "appointments": {
+                                                    "type": "array",
+                                                    "items": {
+                                                        "$ref": "#/components/schemas/AppointmentWithRelations"
+                                                    }
+                                                },
+                                                "pagination": {
+                                                    "type": "object"
+                                                }
+                                            },
+                                            "type": "object"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "post": {
+                "tags": [
+                    "Compromissos"
+                ],
+                "summary": "Criar um novo compromisso",
+                "operationId": "a6a556dca084df99a50f07976fe85697",
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/StoreAppointmentRequest"
+                },
+                "responses": {
+                    "201": {
+                        "description": "Compromisso criado com sucesso",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
+        "/api/v1/appointments/{id}": {
+            "get": {
+                "tags": [
+                    "Compromissos"
+                ],
+                "summary": "Exibir um compromisso específico",
+                "operationId": "3a251feea512db17705870510336f9a9",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Compromisso encontrado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/AppointmentWithRelations"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "put": {
+                "tags": [
+                    "Compromissos"
+                ],
+                "summary": "Atualizar um compromisso",
+                "operationId": "7fccf9ba4224e60a4eca61757bed6548",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "$ref": "#/components/requestBodies/UpdateAppointmentRequest"
+                },
+                "responses": {
+                    "200": {
+                        "description": "Compromisso atualizado",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/Appointment"
+                                }
+                            }
+                        }
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            },
+            "delete": {
+                "tags": [
+                    "Compromissos"
+                ],
+                "summary": "Excluir um compromisso",
+                "operationId": "6bb6504ce4049232eead066e59bb3403",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "required": true,
+                        "schema": {
+                            "type": "integer"
+                        }
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "Compromisso excluído com sucesso"
+                    }
+                },
+                "security": [
+                    {
+                        "bearerAuth": []
+                    }
+                ]
+            }
+        },
         "/api/v1/reminders": {
             "get": {
                 "tags": [
@@ -567,6 +766,35 @@
                 },
                 "type": "object"
             },
+            "AppointmentWithRelations": {
+                "title": "Appointment (com relações)",
+                "description": "Agendamento do usuário com dados relacionados opcionais",
+                "allOf": [
+                    {
+                        "$ref": "#/components/schemas/Appointment"
+                    },
+                    {
+                        "properties": {
+                            "user": {
+                                "oneOf": [
+                                    {
+                                        "$ref": "#/components/schemas/User"
+                                    }
+                                ],
+                                "nullable": true
+                            },
+                            "reminders": {
+                                "type": "array",
+                                "items": {
+                                    "$ref": "#/components/schemas/Reminder"
+                                },
+                                "nullable": true
+                            }
+                        },
+                        "type": "object"
+                    }
+                ]
+            },
             "Reminder": {
                 "title": "Reminder",
                 "description": "Lembrete sem relacionamentos",
@@ -767,6 +995,58 @@
                     }
                 }
             },
+            "StoreAppointmentRequest": {
+                "description": "Dados para criar um novo compromisso",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "title",
+                                "date",
+                                "start_time",
+                                "end_time"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "Consulta Médica"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "Consulta com o Dr. João",
+                                    "nullable": true
+                                },
+                                "date": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2025-07-20"
+                                },
+                                "start_time": {
+                                    "type": "string",
+                                    "example": "14:30"
+                                },
+                                "end_time": {
+                                    "type": "string",
+                                    "example": "15:30"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ativo",
+                                        "cancelado",
+                                        "concluido"
+                                    ],
+                                    "example": "ativo",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
             "StoreReminderRequest": {
                 "description": "Dados para criar um novo lembrete",
                 "required": true,
@@ -848,6 +1128,58 @@
                     }
                 }
             },
+            "UpdateAppointmentRequest": {
+                "description": "Dados para atualizar um compromisso existente",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "title",
+                                "date",
+                                "start_time",
+                                "end_time"
+                            ],
+                            "properties": {
+                                "title": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "Consulta com dermatologista"
+                                },
+                                "description": {
+                                    "type": "string",
+                                    "example": "Análise de pele com Dr. Ana",
+                                    "nullable": true
+                                },
+                                "date": {
+                                    "type": "string",
+                                    "format": "date",
+                                    "example": "2025-08-01"
+                                },
+                                "start_time": {
+                                    "type": "string",
+                                    "example": "09:00"
+                                },
+                                "end_time": {
+                                    "type": "string",
+                                    "example": "10:00"
+                                },
+                                "status": {
+                                    "type": "string",
+                                    "enum": [
+                                        "ativo",
+                                        "cancelado",
+                                        "concluído"
+                                    ],
+                                    "example": "concluído",
+                                    "nullable": true
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
             "UpdateReminderRequest": {
                 "description": "Dados para atualizar um lembrete (envie apenas os campos que deseja alterar)",
                 "required": true,
@@ -913,6 +1245,10 @@
         }
     },
     "tags": [
+        {
+            "name": "Compromissos",
+            "description": "Gerenciamento de compromissos (appointments)"
+        },
         {
             "name": "Lembretes",
             "description": "Gerenciamento de lembretes de compromissos"
