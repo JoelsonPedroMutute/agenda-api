@@ -12,8 +12,16 @@ use OpenApi\Annotations as OA;
  * )
  *
  * @OA\Server(
- *     url="http://agenda_api.test",
+ *     url="http://agenda-api.test",
  *     description="Servidor local"
+ * )
+ *
+ * @OA\SecurityScheme(
+ *     securityScheme="bearerAuth",
+ *     type="http",
+ *     scheme="bearer",
+ *     bearerFormat="JWT",
+ *     description="Autenticação via token Bearer (Laravel Sanctum)"
  * )
  */
 class OpenApi

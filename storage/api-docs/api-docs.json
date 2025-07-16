@@ -7,7 +7,7 @@
     },
     "servers": [
         {
-            "url": "http://agenda_api.test",
+            "url": "http://agenda-api.test",
             "description": "Servidor local"
         }
     ],
@@ -738,6 +738,129 @@
     },
     "components": {
         "schemas": {
+            "AppointmentResourceDocs": {
+                "title": "Appointment",
+                "description": "Recurso de compromisso retornado pela API",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "title": {
+                        "type": "string",
+                        "example": "Consulta médica"
+                    },
+                    "description": {
+                        "type": "string",
+                        "example": "Consulta com o Dr. João às 10h"
+                    },
+                    "date": {
+                        "type": "string",
+                        "format": "date",
+                        "example": "2025-08-10"
+                    },
+                    "start_time": {
+                        "type": "string",
+                        "example": "10:00"
+                    },
+                    "end_time": {
+                        "type": "string",
+                        "example": "11:00"
+                    },
+                    "status": {
+                        "type": "string",
+                        "example": "ativo"
+                    },
+                    "user": {
+                        "$ref": "#/components/schemas/User"
+                    },
+                    "reminders": {
+                        "description": "Lista de lembretes associados (se carregado com with('reminders'))",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Reminder"
+                        }
+                    }
+                },
+                "type": "object"
+            },
+            "ReminderResourceDocs": {
+                "title": "Reminder",
+                "description": "Recurso de lembrete retornado pela API",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 1
+                    },
+                    "appointment_id": {
+                        "type": "integer",
+                        "example": 10
+                    },
+                    "remind_at": {
+                        "type": "string",
+                        "format": "date-time",
+                        "example": "2025-08-10 09:00:00"
+                    },
+                    "method": {
+                        "description": "Método de notificação: email, sms ou notification",
+                        "type": "string",
+                        "example": "sms"
+                    },
+                    "message_status": {
+                        "type": "string",
+                        "example": "sent",
+                        "nullable": true
+                    },
+                    "message_sid": {
+                        "type": "string",
+                        "example": "SMXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
+                        "nullable": true
+                    },
+                    "appointment": {
+                        "$ref": "#/components/schemas/Appointment"
+                    }
+                },
+                "type": "object"
+            },
+            "UserResourceDocs": {
+                "title": "User",
+                "description": "Recurso de usuário autenticado ou relacionado a um agendamento",
+                "properties": {
+                    "id": {
+                        "type": "integer",
+                        "example": 5
+                    },
+                    "name": {
+                        "type": "string",
+                        "example": "Joelson Mutute"
+                    },
+                    "email": {
+                        "type": "string",
+                        "format": "email",
+                        "example": "joelson@exemplo.com"
+                    },
+                    "role": {
+                        "type": "string",
+                        "enum": [
+                            "user",
+                            "admin"
+                        ],
+                        "example": "admin"
+                    },
+                    "phone_number": {
+                        "type": "string",
+                        "example": "+244912345678"
+                    },
+                    "appointments": {
+                        "description": "Compromissos agendados, se carregados com with('appointments')",
+                        "type": "array",
+                        "items": {
+                            "$ref": "#/components/schemas/Appointment"
+                        }
+                    }
+                },
+                "type": "object"
+            },
             "Appointment": {
                 "title": "Appointment",
                 "description": "Agendamento do usuário",
@@ -995,6 +1118,55 @@
                     }
                 }
             },
+            "RegisterUserRequest": {
+                "description": "Dados necessários para registrar um novo usuário",
+                "required": true,
+                "content": {
+                    "application/json": {
+                        "schema": {
+                            "required": [
+                                "name",
+                                "email",
+                                "password",
+                                "password_confirmation"
+                            ],
+                            "properties": {
+                                "name": {
+                                    "type": "string",
+                                    "maxLength": 255,
+                                    "example": "Joelson Mutute"
+                                },
+                                "email": {
+                                    "type": "string",
+                                    "format": "email",
+                                    "example": "joelson@email.com"
+                                },
+                                "password": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "minLength": 8,
+                                    "example": "senhaSegura123"
+                                },
+                                "password_confirmation": {
+                                    "type": "string",
+                                    "format": "password",
+                                    "example": "senhaSegura123"
+                                },
+                                "role": {
+                                    "description": "Papel do usuário (opcional). Padrão: 'user'",
+                                    "type": "string",
+                                    "enum": [
+                                        "user",
+                                        "admin"
+                                    ],
+                                    "example": "user"
+                                }
+                            },
+                            "type": "object"
+                        }
+                    }
+                }
+            },
             "StoreAppointmentRequest": {
                 "description": "Dados para criar um novo compromisso",
                 "required": true,
@@ -1241,6 +1413,14 @@
                         }
                     }
                 }
+            }
+        },
+        "securitySchemes": {
+            "bearerAuth": {
+                "type": "http",
+                "description": "Autenticação via token Bearer (Laravel Sanctum)",
+                "bearerFormat": "JWT",
+                "scheme": "bearer"
             }
         }
     },
