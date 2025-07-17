@@ -41,7 +41,7 @@ class UpdateAppointmentRequest extends FormRequest
             'date'        => 'required|date',
             'start_time'  => 'required|date_format:H:i',                 // Exemplo: "08:00"
             'end_time'    => 'required|date_format:H:i|after:start_time',// Deve ser após o horário de início
-            'status'      => ['nullable', 'in:ativo,cancelado,concluído'], // Valores permitidos
+            'status'      => ['nullable', 'in:ativo,cancelado,concluido'], // Valores permitidos
         ];
     }
 }
