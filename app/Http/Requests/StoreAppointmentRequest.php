@@ -41,7 +41,7 @@ class StoreAppointmentRequest extends FormRequest
             'date'        => 'required|date',
             'start_time'  => 'required|date_format:H:i',       // Exemplo: "14:30"
             'end_time'    => 'required|date_format:H:i',
-            'status'      => ['nullable', 'in:ativo,cancelado,concluido'],
+            'status'      => ['nullable', 'in:ativo,cancelado,concluído'],
         ];
     }
 }
