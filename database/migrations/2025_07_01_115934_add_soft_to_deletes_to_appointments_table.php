@@ -12,7 +12,8 @@ return new class extends Migration
     public function up(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-             $table->softDeletes();
+            // Adiciona suporte a exclusão lógica (soft delete)
+            $table->softDeletes(); // Cria coluna 'deleted_at'
         });
     }
 
@@ -22,7 +23,8 @@ return new class extends Migration
     public function down(): void
     {
         Schema::table('appointments', function (Blueprint $table) {
-           $table->dropSoftDeletes();
+            // Remove a coluna 'deleted_at'
+            $table->dropSoftDeletes();
         });
     }
 };

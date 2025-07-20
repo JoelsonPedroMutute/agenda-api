@@ -7,21 +7,28 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a criação da tabela reminders.
      */
     public function up(): void
     {
         Schema::create('reminders', function (Blueprint $table) {
-            $table->id();
-            $table->foreignId('appointment_id')->constrained()->onDelete('cascade');
-             $table->timestamp('remind_at')->nullable();
-            $table->enum('method', ['email', 'message', 'notification'])->default('notification');
-            $table->timestamps();
+            $table->bigIncrements('id'); // Chave primária (BIGSERIAL)
+            
+            $table->foreignId('appointment_id')
+                ->constrained('appointments') // Cria foreign key para tabela 'appointments'
+                ->onDelete('cascade');        // Apaga os lembretes quando o agendamento for deletado
+
+            $table->timestamp('remind_at')->nullable(); // Data/hora para o lembrete
+
+            $table->enum('method', ['email', 'message', 'notification']) // Meio do lembrete
+                  ->default('notification');
+
+            $table->timestamps(); // created_at e updated_at
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Reverte a criação da tabela reminders.
      */
     public function down(): void
     {

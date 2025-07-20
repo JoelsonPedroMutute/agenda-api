@@ -7,22 +7,23 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a modificação na tabela 'users', adicionando a coluna 'role'.
      */
     public function up(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            $table->string('role')->default('user');
+            // 'after' é ignorado em PostgreSQL, por isso removido
+            $table->string('role')->default('user'); // Perfil do usuário: 'user', 'admin', etc.
         });
     }
 
     /**
-     * Reverse the migrations.
+     * Reverte a modificação feita na tabela 'users'.
      */
     public function down(): void
     {
         Schema::table('users', function (Blueprint $table) {
-            //
+            $table->dropColumn('role');
         });
     }
 };

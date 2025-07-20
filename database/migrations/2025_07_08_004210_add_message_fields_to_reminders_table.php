@@ -9,19 +9,22 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-   public function up()
-{
-    Schema::table('reminders', function (Blueprint $table) {
-        $table->string('message_status')->nullable()->after('method');
-        $table->string('message_sid')->nullable()->after('message_status');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('reminders', function (Blueprint $table) {
+            // No PostgreSQL, a ordem das colunas não pode ser garantida com "after".
+            $table->string('message_status')->nullable(); // Adiciona campo para status da mensagem
+            $table->string('message_sid')->nullable();     // Adiciona campo para SID da mensagem (ex: Twilio)
+        });
+    }
 
-public function down()
-{
-    Schema::table('reminders', function (Blueprint $table) {
-        $table->dropColumn(['message_status', 'message_sid']);
-    });
-}
-
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('reminders', function (Blueprint $table) {
+            $table->dropColumn(['message_status', 'message_sid']);
+        });
+    }
 };

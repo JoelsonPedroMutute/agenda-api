@@ -9,18 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-    public function up()
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->string('phone_number')->nullable()->after('email');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            // PostgreSQL ignora o "after", então é removido
+            $table->string('phone_number')->nullable(); // Número de telefone opcional do usuário
+        });
+    }
 
-public function down()
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropColumn('phone_number');
-    });
-}
-
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropColumn('phone_number');
+        });
+    }
 };

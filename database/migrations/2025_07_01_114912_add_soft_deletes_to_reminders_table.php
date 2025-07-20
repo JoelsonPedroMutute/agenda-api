@@ -7,21 +7,23 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration: adiciona a coluna 'deleted_at' à tabela 'reminders'.
      */
-   public function up(): void
-{
-    Schema::table('reminders', function (Blueprint $table) {
-        $table->softDeletes();
-    });
-}
+    public function up(): void
+    {
+        Schema::table('reminders', function (Blueprint $table) {
+            // Suporte a exclusão lógica (soft delete)
+            $table->softDeletes(); // Cria coluna 'deleted_at' (TIMESTAMP NULL)
+        });
+    }
+
     /**
-     * Reverse the migrations.
+     * Reverte a migration: remove a coluna 'deleted_at'.
      */
     public function down(): void
-{
-    Schema::table('reminders', function (Blueprint $table) {
-        $table->dropSoftDeletes();
-    });
-}
+    {
+        Schema::table('reminders', function (Blueprint $table) {
+            $table->dropSoftDeletes(); // Remove a coluna 'deleted_at'
+        });
+    }
 };

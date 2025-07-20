@@ -11,11 +11,11 @@ return new class extends Migration
      */
     public function up(): void
     {
-    Schema::create('password_resets', function (Blueprint $table) {
-    $table->string('email')->index();
-    $table->string('token');
-    $table->timestamp('created_at')->nullable();
-});
+        Schema::create('password_resets', function (Blueprint $table) {
+            $table->string('email')->index();     // Email do usuário solicitando redefinição
+            $table->string('token');              // Token de redefinição de senha
+            $table->timestamp('created_at')->nullable(); // Momento da solicitação
+        });
     }
 
     /**

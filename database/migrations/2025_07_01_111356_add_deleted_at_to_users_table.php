@@ -7,20 +7,22 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration: adiciona a coluna 'deleted_at' para soft deletes na tabela 'users'.
      */
-public function up(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->softDeletes(); // adiciona a coluna deleted_at
-    });
-}
+    public function up(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->softDeletes(); // Cria a coluna 'deleted_at' do tipo timestamp nullable
+        });
+    }
 
-public function down(): void
-{
-    Schema::table('users', function (Blueprint $table) {
-        $table->dropSoftDeletes();
-    });
-}
-
+    /**
+     * Reverte a migration: remove a coluna 'deleted_at'.
+     */
+    public function down(): void
+    {
+        Schema::table('users', function (Blueprint $table) {
+            $table->dropSoftDeletes(); // Remove a coluna 'deleted_at'
+        });
+    }
 };

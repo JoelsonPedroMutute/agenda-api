@@ -7,13 +7,13 @@ use Illuminate\Support\Facades\Schema;
 return new class extends Migration
 {
     /**
-     * Run the migrations.
+     * Executa a migration.
      */
     public function up(): void
     {
         Schema::create('personal_access_tokens', function (Blueprint $table) {
-            $table->id();
-            $table->morphs('tokenable');
+            $table->bigIncrements('id'); // Para garantir compatibilidade no PostgreSQL
+            $table->morphs('tokenable'); // Para chaves polimórficas com UUID ou string (recomendado para PostgreSQL)
             $table->string('name');
             $table->string('token', 64)->unique();
             $table->text('abilities')->nullable();
@@ -24,7 +24,7 @@ return new class extends Migration
     }
 
     /**
-     * Reverse the migrations.
+     * Reverte a migration.
      */
     public function down(): void
     {

@@ -9,18 +9,21 @@ return new class extends Migration
     /**
      * Run the migrations.
      */
-  public function up()
-{
-    Schema::table('appointments', function (Blueprint $table) {
-        $table->dateTime('scheduled_at')->nullable()->after('user_id');
-    });
-}
+    public function up(): void
+    {
+        Schema::table('appointments', function (Blueprint $table) {
+            // PostgreSQL ignora "after", então removemos para evitar confusão
+            $table->dateTime('scheduled_at')->nullable(); // Data e hora do agendamento
+        });
+    }
 
-public function down()
-{
-    Schema::table('appointments', function (Blueprint $table) {
-        $table->dropColumn('scheduled_at');
-    });
-}
-
+    /**
+     * Reverse the migrations.
+     */
+    public function down(): void
+    {
+        Schema::table('appointments', function (Blueprint $table) {
+            $table->dropColumn('scheduled_at');
+        });
+    }
 };

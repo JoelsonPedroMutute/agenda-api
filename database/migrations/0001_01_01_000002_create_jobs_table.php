@@ -15,10 +15,10 @@ return new class extends Migration
             $table->id();
             $table->string('queue')->index();
             $table->longText('payload');
-            $table->unsignedTinyInteger('attempts');
-            $table->unsignedInteger('reserved_at')->nullable();
-            $table->unsignedInteger('available_at');
-            $table->unsignedInteger('created_at');
+            $table->tinyInteger('attempts'); // ← corrigido
+            $table->integer('reserved_at')->nullable(); // ← corrigido
+            $table->integer('available_at');            // ← corrigido
+            $table->integer('created_at');              // ← corrigido
         });
 
         Schema::create('job_batches', function (Blueprint $table) {
@@ -28,7 +28,7 @@ return new class extends Migration
             $table->integer('pending_jobs');
             $table->integer('failed_jobs');
             $table->longText('failed_job_ids');
-            $table->mediumText('options')->nullable();
+            $table->text('options')->nullable(); // ← corrigido
             $table->integer('cancelled_at')->nullable();
             $table->integer('created_at');
             $table->integer('finished_at')->nullable();
@@ -55,3 +55,4 @@ return new class extends Migration
         Schema::dropIfExists('failed_jobs');
     }
 };
+
