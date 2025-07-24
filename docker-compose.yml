@@ -20,7 +20,7 @@ services:
       - DB_PORT=5432
       - DB_DATABASE=Agenda_api
       - DB_USERNAME=postgres
-      - DB_PASSWORD="Loand@2019!"
+      - DB_PASSWORD=Loand@2019!
   postgres:
     image: postgres:17
     container_name: agenda-postgres
@@ -30,7 +30,7 @@ services:
     environment:
       - POSTGRES_DB=Agenda_api
       - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD="Loand@2019!"
+      - POSTGRES_PASSWORD=Loand@2019!
     volumes:
       - pg_data:/var/lib/postgresql/data
 volumes:
