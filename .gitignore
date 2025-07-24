@@ -34,3 +34,10 @@ yarn-error.log
 /storage/framework/*
 /storage/logs/*
 
+# Ignorar arquivos do Docker
+Dockerfile
+docker-compose.yml
+000-default
+apache.
+.docker/
+*.dockerfile
