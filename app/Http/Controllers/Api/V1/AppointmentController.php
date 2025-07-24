@@ -10,6 +10,7 @@ use App\Services\AppointmentService;
 use App\Filters\AppointmentFilter;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Response;
 
 /**
  * Controlador responsável por gerenciar os compromissos (appointments) da API.
@@ -44,7 +45,7 @@ class AppointmentController extends Controller
             ? $this->service->getAllAsAdmin($filter, $perPage, $withRelations)
             : $this->service->getAll(Auth::id(), $filter, $perPage, $withRelations);
 
-        return response()->json([
+        return Response()->json([
             'success' => true,
             'status' => 200,
             'message' => 'Lista de compromissos recuperada com sucesso.',

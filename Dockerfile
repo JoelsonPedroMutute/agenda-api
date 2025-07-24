@@ -9,7 +9,7 @@ RUN apt-get update && apt-get install -y \
 RUN a2enmod rewrite
 
 # Define o diretório de trabalho como a raiz do Laravel
-WORKDIR /var/www/html
+WORKDIR /var/www/html/public
 
 # Copia todos os arquivos da aplicação para dentro do container
 COPY . .
@@ -18,7 +18,7 @@ COPY . .
 COPY --from=composer:2 /usr/bin/composer /usr/bin/composer
 
 # Permite que o git funcione corretamente dentro do container
-RUN git config --global --add safe.directory /var/www/html
+RUN git config --global --add safe.directory /var/www/html/public
 
 # Instala as dependências PHP da aplicação Laravel
 RUN composer install --no-interaction --prefer-dist --optimize-autoloader

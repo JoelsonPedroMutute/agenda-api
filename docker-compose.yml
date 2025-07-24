@@ -1,46 +1,37 @@
 version: '3.8'
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    container_name: agenda-app
+  agenda-api:
+    build: .
+    image: agenda-api
+    container_name: agenda-api
     ports:
-      - "8081:80"
+      - "8080:80"
     volumes:
       - .:/var/www/html
     depends_on:
       - postgres
     environment:
-      APP_ENV: local
-      APP_DEBUG: true
-      DB_CONNECTION: pgsql
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_DATABASE: Agenda_api
-      DB_USERNAME: postgres
-      DB_PASSWORD: Loand@2019!
-    networks:
-      - agenda-network
-
+      - APP_ENV=local
+      - APP_DEBUG=true
+      - APP_URL=http://localhost
+      - DB_CONNECTION=pgsql
+      - DB_HOST=postgres
+      - DB_PORT=5432
+      - DB_DATABASE=Agenda_api
+      - DB_USERNAME=postgres
+      - DB_PASSWORD="Loand@2019!"
   postgres:
-    image: postgres:15
+    image: postgres:17
     container_name: agenda-postgres
     restart: always
     ports:
       - "5433:5432"
     environment:
-      POSTGRES_DB: Agenda_api
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: Loand@2019!
+      - POSTGRES_DB=Agenda_api
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD="Loand@2019!"
     volumes:
       - pg_data:/var/lib/postgresql/data
-    networks:
-      - agenda-network
-
 volumes:
   pg_data:
-
-networks:
-  agenda-network:
