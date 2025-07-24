@@ -22,31 +22,38 @@ Filtros
     Suporte a soft deletes com filtros como `trashed=only` ou `trashed=with`.
 
 ### Tecnologias
-    PHP 8.x
+   PHP 8.x
 
     Laravel 12.x
 
-    MySQL ou MariaDB
+    PostgreSQL (substituindo o MySQL/MariaDB)
 
-    Laravel Sanctum para autenticação via API
+    Laravel Sanctum para autenticação
 
-    Postman ou Insomnia para testes de endpoints da API
+    Swagger (via l5-swagger) para documentação da API
 
-    Laravel Herd como ambiente de desenvolvimento local  
-    Swagger para documentação da API  
+    WAMP Server como ambiente de desenvolvimento local
+
+    Docker e Docker Compose para containerização da aplicação
+
+    Postman ou Insomnia para testes de endpoints 
 
 ### Pré-requisitos
     Antes de rodar a aplicação, verifique se você tem os seguintes pré-requisitos instalados:
 
     PHP (versão 8.3 ou superior).
 
-    Composer.
+    Composer
 
-    MySQL ou MariaDB.
+    PostgreSQL
 
-    Laravel Herd 
+    Git
 
-    .env configurado com as credenciais do banco de dados.
+    Docker e Docker Compose
+
+    WAMP (como ambiente alternativo ao Laravel Herd)
+
+    .env corretamente configurado com credenciais atualizadas do banco PostgreSQL
 
 
 ### Como Rodar o Projeto Localmente
@@ -63,15 +70,14 @@ Filtros
     php artisan key:generate
 
 ### Configure seu banco de dados no arquivo .env. com os dados corretos do banco de dados. Exemplo: 
-    DB_CONNECTION=mysql  
-    DB_HOST=127.0.0.1  
-    DB_PORT=3306  
-    DB_DATABASE=agenda  
-    DB_USERNAME=root  
-    DB_PASSWORD=
-   
+    DB_CONNECTION=pgsql
+    DB_HOST=127.0.0.1
+    DB_PORT=5432
+    DB_DATABASE=agenda
+    DB_USERNAME=postgres
+    DB_PASSWORD=secret
 
-###  Comandos para Migrations, Seeders, Factories e Resources
+###  Comandos para Migrations
     Rodar Migrations: php artisan migrate
 
 ### Se quiser resetar as tabelas e rodar novamente, use:
@@ -83,14 +89,18 @@ Filtros
 ### Se você quiser rodar um seeder específico, por exemplo, o seeder de User
     php artisan db:seed --class=UserSeeder
 
-###  Inicie o servidor:
-    Se estiver utilizando Laravel Herd:
-    O servidor é iniciado automaticamente. A API estará disponível em: http://agenda_api.test
-    
-    Se estiver utilizando Laragon ou ambiente tradicional:
-    Inicie o servidor com:
+### Usando Docker
+    docker-compose up -d --build
+
+### Acessando a Documentação Swagger
+    http://localhost:8000/api/documentation
+
+### Ambiente de Desenvolvimento
+    Se não estiver usando Docker, inicie com::
+
     php artisan serve
-    A API estará disponível em http://127.0.0.1:8000
+
+    A API estará disponível em  http://localhost:8000
 
 ### Contribuindo
     Se você quiser contribuir para o projeto, sinta-se à vontade para criar uma pull request com suas alterações. Basta fazer um fork do repositório, criar uma branch com sua feature, fazer os commits necessários e abrir uma pull request com uma descrição clara do que foi implementado.
