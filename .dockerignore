@@ -1,0 +1,19 @@
+# Ignorar arquivos e pastas desnecessários para o build da imagem Docker
+
+# Caminhos inválidos do Windows que podem quebrar o container
+C:\Users\Faustino\Herd\agenda-api\storage/framework/views
+
+# Pastas que serão regeneradas pelo Laravel
+vendor
+node_modules
+storage/framework/views
+storage/logs
+
+# Arquivos temporários e ocultos
+*.log
+*.zip
+*.tar
+.DS_Store
+Thumbs.db
+.env.local
+.env.testing

@@ -8,7 +8,8 @@ services:
     ports:
       - "8080:80"
     volumes:
-      - ./:/var/www/html
+    - ./public:/var/www/html/public
+    - ./storage:/var/www/html/storage
     depends_on:
       - postgres
     environment:
